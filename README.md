@@ -1,26 +1,25 @@
-# 🚚 Saga Food Truck
-
+Aplicação de Food Truck Completa
 Aplicação completa de food truck com frontend (React/Vite) e backend (Node.js/Express).
 
-## 📋 Pré-requisitos
+📋 Pré-requisitos
 
-- **Node.js** (versão 18.x ou superior)
-- **npm** (versão 8.x ou superior)
-- **Docker Desktop** (para futuras funcionalidades de banco de dados)
-- **Git** (para clonar o repositório)
+Node.js (versão 18.x ou superior)
 
-## 🚀 Como rodar o projeto completo
+npm (versão 8.x ou superior)
 
-### 1. Clonar o repositório
+Docker Desktop (para futuras funcionalidades de banco de dados)
 
-```bash
+Git (para clonar o repositório)
+
+🚀 Como rodar o projeto completo
+
+1. Clonar o repositório
 git clone <url-do-repositorio>
 cd saga_food_truck
-```
 
-### 2. Configurar o Backend
+2. Configurar e Iniciar o Backend
+O Backend deve ser iniciado em um terminal separado.
 
-```bash
 # Navegar para a pasta do backend
 cd back
 
@@ -32,14 +31,14 @@ npm install
 
 # Iniciar o servidor (em um terminal separado)
 npm run dev
-```
+O backend estará rodando em: http://localhost:3002
 
-O backend estará rodando em: `http://localhost:3002`
+3. Configurar e Iniciar o Frontend
+O Frontend agora pode ser iniciado a partir da pasta raiz (saga_food_truck/) usando um único comando.
 
-### 3. Configurar o Frontend
+Primeira Configuração (apenas uma vez):
 
-```bash
-# Navegar para a pasta do frontend (novo terminal)
+# Navegar para a pasta do frontend
 cd front
 
 # Copiar arquivo de configuração
@@ -47,22 +46,20 @@ cp .env.example .env
 
 # Instalar dependências
 npm install
+Para iniciar o Frontend (em um NOVO terminal, a partir da pasta raiz saga_food_truck):
 
-# Iniciar o servidor de desenvolvimento
-npm run dev
-```
+npm run start:fe
+O frontend estará rodando em: http://localhost:5173
 
-O frontend estará rodando em: `http://localhost:5173`
+4. Testar a aplicação
+Acesse http://localhost:5173 no navegador.
 
-### 4. Testar a aplicação
+A Página Home (página principal) agora contém os botões de teste de API. Clique neles para verificar a comunicação com o Backend.
 
-1. Acesse `http://localhost:5173` no navegador
-2. Clique nos botões de teste para verificar a comunicação com a API
-3. Verifique os logs no terminal do backend
+Verifique os logs no terminal do backend para confirmação.
 
-## 📁 Estrutura do projeto
+📁 Estrutura do projeto
 
-```
 saga_food_truck/
 ├── back/                 # Backend (Node.js/Express)
 │   ├── server.js        # Servidor principal
@@ -71,108 +68,77 @@ saga_food_truck/
 │   └── .env             # Variáveis de ambiente (local)
 ├── front/               # Frontend (React/Vite)
 │   ├── src/            # Código fonte
+│   ├── pages/          # Páginas (Home, Menu, etc.)
 │   ├── package.json    # Dependências do frontend
 │   ├── .env.example    # Variáveis de ambiente (exemplo)
 │   └── .env            # Variáveis de ambiente (local)
 └── README.md           # Este arquivo
-```
 
-## ⚙️ Configurações
+⚙️ Configurações
 
-### Backend (.env)
-```
+Backend (.env)
 PORT=3002
-```
+Frontend (.env)
 
-### Frontend (.env)
-```
-VITE_API_BASE_URL=http://localhost:3000
-```
+VITE_API_BASE_URL=http://localhost:3002
+(A URL deve apontar para a porta do backend, 3002)
 
-## 📜 Scripts disponíveis
+📜 Scripts disponíveis
 
-### Backend
-- `npm start` - Servidor em modo produção
-- `npm run dev` - Servidor em modo desenvolvimento (nodemon)
+Geral (pasta raiz saga_food_truck)
 
-### Frontend
-- `npm run dev` - Servidor de desenvolvimento
-- `npm run build` - Build de produção
-- `npm run preview` - Preview da build
-- `npm run lint` - Linter ESLint
+Script	Descrição
+npm run start:fe	NOVO! Inicia o Frontend (entra na pasta front e executa npm run dev).
+Backend
 
-## 🔧 Problemas comuns
+Script	Descrição
+npm start	Servidor em modo produção
+npm run dev	Servidor em modo desenvolvimento (nodemon)
+Frontend (use apenas se estiver dentro da pasta front)
 
-### Porta já em uso
-**Erro:** `EADDRINUSE: address already in use :::3000`
+Script	Descrição
+npm run dev	Servidor de desenvolvimento
+npm run build	Build de produção
+npm run preview	Preview da build
+npm run lint	Linter ESLint
 
-**Soluções:**
-```bash
+🔧 Problemas comuns
+
+Porta já em uso
+Erro: EADDRINUSE: address already in use :::3000
+
+Soluções:
+
 # Verificar o que está usando a porta
 lsof -i :3000
-
 # Matar o processo (substitua <PID> pelo número do processo)
 kill -9 <PID>
-
 # Ou alterar a porta no arquivo back/.env
 PORT=3001
-```
+Frontend não conecta com Backend
 
-### Frontend não conecta com Backend
-**Problema:** Botões de teste retornam erro
+Problema: Botões de teste retornam erro
 
-**Soluções:**
-1. Verificar se o backend está rodando (`http://localhost:3000`)
-2. Verificar se a URL no `front/.env` está correta
-3. Verificar se as portas não estão sendo bloqueadas pelo firewall
+Soluções:
 
-### Dependências não instaladas
-**Erro:** `Module not found`
+Verificar se o backend está rodando (http://localhost:3002)
+Verificar se a URL no front/.env está correta (VITE_API_BASE_URL=http://localhost:3002)
+Verificar se as portas não estão sendo bloqueadas pelo firewall
+Dependências não instaladas
 
-**Solução:**
-```bash
+Erro: Module not found
+Solução:
+
 # No backend
 cd back && npm install
 
-# No frontend  
+# No frontend
 cd front && npm install
-```
+Docker (futuro)
 
-### Docker (futuro)
-**Preparação para containers:**
-```bash
+Preparação para containers:
+
 # Verificar se Docker está rodando
 docker --version
 docker-compose --version
-```
-
-### Variáveis de ambiente não carregam
-**Problema:** Servidor não lê configurações do .env
-
-**Soluções:**
-1. Verificar se o arquivo `.env` existe
-2. Verificar se não há espaços extras nas variáveis
-3. Reiniciar o servidor após alterar o .env
-
-## 🧪 Como testar
-
-1. **Backend isolado:**
-   - Acesse `http://localhost:3000` no navegador
-   - Deve retornar JSON com mensagem da API
-
-2. **Frontend isolado:**
-   - Acesse `http://localhost:5173`
-   - Interface deve carregar sem erros
-
-3. **Comunicação completa:**
-   - Com ambos rodando, clique nos botões de teste
-   - Deve ver respostas verdes da API
-   - Logs devem aparecer no terminal do backend
-
-## 📞 Suporte
-
-Se encontrar problemas:
-1. Verificar a seção "Problemas comuns" acima
-2. Verificar se todas as dependências foram instaladas
-3. Verificar se as portas não estão conflitando
-4. Reiniciar ambos os servidores
+Variáveis de ambiente não carregadas

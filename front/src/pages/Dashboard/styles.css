@@ -1,0 +1,180 @@
+/* Dashboard Styles - Uses global CSS variables from /src/styles/variables.css */
+
+.dashboard-container {
+  padding: var(--space-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+  padding: var(--space-md);
+  background: var(--light-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-title {
+  margin: 0;
+  color: var(--primary-orange);
+  font-size: var(--font-3xl);
+  font-weight: var(--font-semibold);
+}
+
+.dashboard-welcome {
+  margin: var(--space-sm) 0 0 0;
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+}
+
+.dashboard-welcome strong {
+  color: var(--primary-orange);
+}
+
+.logout-button {
+  background: var(--danger-color);
+  color: var(--white);
+  border: none;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  transition: var(--transition);
+}
+
+.logout-button:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.logout-button:active {
+  transform: translateY(0);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+.dashboard-card {
+  background: var(--white);
+  padding: var(--space-lg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+
+.dashboard-card:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary-orange);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  color: var(--primary-orange);
+  margin-top: 0;
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-xl);
+  font-weight: var(--font-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.card-description {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+  line-height: 1.5;
+}
+
+.card-button {
+  background: var(--primary-orange);
+  color: var(--white);
+  border: none;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  transition: var(--transition);
+  width: 100%;
+}
+
+.dashboard-card .card-button:hover {
+  background: #e55a00;
+  color: var(--white);
+  transform: translateY(-1px);
+}
+
+.dashboard-card .card-button:active {
+  transform: translateY(0);
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: var(--font-lg);
+  color: var(--text-secondary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: var(--space-md);
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+  }
+
+  .dashboard-title {
+    font-size: var(--font-2xl);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .dashboard-card {
+    padding: var(--space-md);
+  }
+
+  .card-title {
+    font-size: var(--font-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: var(--space-sm);
+  }
+
+  .dashboard-header {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .dashboard-title {
+    font-size: var(--font-xl);
+  }
+
+  .dashboard-welcome {
+    font-size: var(--font-xs);
+  }
+
+  .logout-button {
+    font-size: var(--font-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+}

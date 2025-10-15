@@ -1,28 +1,20 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import authRoutes from './routes/authRoutes.js';
+import apiRoutes from './routes/apiRoutes.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  console.log('🚀 Rota raiz acessada!');
-  res.json({ 
-    message: 'Saga Food Truck API está funcionando!',
-    timestamp: new Date().toISOString()
-  });
-});
-
-app.get('/api/test', (req, res) => {
-  console.log('✅ Rota de teste acessada!');
-  res.json({ 
-    status: 'success',
-    message: 'Backend está rodando perfeitamente!'
-  });
-});
+// Routes
+app.use('/', apiRoutes);
+app.use('/api', apiRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
   console.log('🚚 Saga Food Truck Backend');

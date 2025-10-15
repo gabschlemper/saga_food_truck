@@ -1,20 +1,46 @@
 // src/App.jsx
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Home from './pages/Home' // Importe sua nova página Home
-import './App.css' // Mantenha a importação do CSS aqui
+import { Provider } from 'react-redux'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { store } from './store'
+import { useAppSelector } from './store/hooks'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Home from './pages/Home' // Keep for testing purposes
+import './styles.css'
+
+// Protected Route component
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAppSelector((state) => state.auth)
+  return isAuthenticated ? children : <Navigate to="/login" replace />
+}
 
 function App() {
   return (
-    // BrowserRouter envolve toda a aplicação
-    <BrowserRouter>
-      {/* Routes define os caminhos */}
-      <Routes>
-        {/* Rota principal (/) aponta para a página Home */}
-        <Route path="/" element={<Home />} />
-        {/* Aqui você adicionará outras rotas, ex: <Route path="/menu" element={<Menu />} /> */}
-      </Routes>
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <Routes>
+          {/* Redirect root to login */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          
+          {/* Login route */}
+          <Route path="/login" element={<Login />} />
+          
+          {/* Protected dashboard route */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Keep home for testing API connectivity */}
+          <Route path="/test" element={<Home />} />
+        </Routes>
+      </BrowserRouter>
+    </Provider>
   )
 }
 

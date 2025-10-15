@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { logout } from '../../store/slices/authSlice'
-import './Dashboard.css'
+import './styles.css'
 
 function Dashboard() {
   const navigate = useNavigate()

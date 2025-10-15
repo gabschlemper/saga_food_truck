@@ -7,7 +7,7 @@ import { useAppSelector } from './store/hooks'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Home from './pages/Home' // Keep for testing purposes
-import './App.css'
+import './styles.css'
 
 // Protected Route component
 function ProtectedRoute({ children }) {

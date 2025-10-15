@@ -1,7 +1,7 @@
-// src/pages/Home.jsx
+// src/pages/Home/index.jsx
 
 import { useState } from 'react'
-import { apiRequest } from '../config/api.js' // Ajuste o caminho de importação!
+import { apiRequest } from '../../config/api.js' // Ajuste o caminho de importação!
 
 function Home() {
   const [apiResponse, setApiResponse] = useState(null)

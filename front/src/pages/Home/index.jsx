@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { apiRequest } from '../config/api.js' // Ajuste o caminho de importação!
-// import '../App.css' // Não precisamos do CSS aqui, ele pode ficar em App.jsx ou no index.css
 
 function Home() {
   const [apiResponse, setApiResponse] = useState(null)
@@ -58,7 +57,6 @@ function Home() {
           ❌ Erro: {error}
           <br />
           <small>Verifique se o backend está rodando em http://localhost:3002</small> 
-          {/* Ajustei a porta para 3002, conforme seu setup! */}
         </div>
       )}
 

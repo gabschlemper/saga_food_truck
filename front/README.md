@@ -118,3 +118,24 @@ npm run dev
 5. **No terminal do backend você verá:**
    - Logs das requisições sendo feitas
    - Emojis indicando qual rota foi acessada
+
+## Troubleshooting
+
+### Button hover effects showing white instead of expected color
+
+1. **Check for global CSS conflicts:**
+```bash
+# Search for button hover styles in your CSS files
+grep -r "button:hover" src/
+grep -r "btn.*:hover" src/
+```
+
+2. **Use browser dev tools:**
+   - Right-click the button and select "Inspect"
+   - Check the "Styles" tab to see which CSS rules are being applied
+   - Look for crossed-out styles (overridden rules)
+
+3. **Common causes:**
+   - Global button styles in `index.css` or `App.css`
+   - CSS framework overrides (Bootstrap, Tailwind, etc.)
+   - Component library styles

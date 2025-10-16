@@ -7,6 +7,8 @@ import { useAppSelector } from './store/hooks'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Home from './pages/Home' // Keep for testing purposes
+import Products from './pages/Products'
+import Orders from './pages/Orders'
 import './styles.css'
 
 // Protected Route component
@@ -38,6 +40,10 @@ function App() {
           
           {/* Keep home for testing API connectivity */}
           <Route path="/test" element={<Home />} />
+          
+          {/* Products and Orders routes */}
+          <Route path="/produtos" element={<Products />} />
+          <Route path="/pedidos" element={<Orders />} />
         </Routes>
       </BrowserRouter>
     </Provider>

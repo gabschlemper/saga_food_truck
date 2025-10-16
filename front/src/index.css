@@ -62,8 +62,7 @@ button {
 }
 
 button:hover:not(:disabled) {
-  border-color: #ff6600;
-  background-color: #fff;
+  box-shadow: #213547;
 }
 
 button:focus,

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
-import { fetchProducts, setProducts, deleteProduct } from '../../store/slices/productsSlice'
+import { fetchProducts, deleteProduct, createProduct, updateProduct } from '../../store/slices/productsSlice'
 import Sidebar from '../../components/Sidebar'
 import ConfirmDialog from '../../components/ConfirmDialog'
+import ProductModal from '../../components/ProductModal'
 import './styles.css'
 
 function Products() {
@@ -12,6 +13,8 @@ function Products() {
   const [showModal, setShowModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [productToDelete, setProductToDelete] = useState(null)
+  const [editingProduct, setEditingProduct] = useState(null)
+  const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
     dispatch(fetchProducts())
@@ -48,6 +51,32 @@ function Products() {
     setProductToDelete(null)
   }
 
+  const handleEditClick = (product) => {
+    setEditingProduct(product)
+    setIsEditing(true)
+    setShowModal(true)
+  }
+
+  const handleAddClick = () => {
+    setEditingProduct(null)
+    setIsEditing(false)
+    setShowModal(true)
+  }
+
+  const handleModalClose = () => {
+    setShowModal(false)
+    setEditingProduct(null)
+    setIsEditing(false)
+  }
+
+  const handleModalSubmit = async (productData) => {
+    if (isEditing) {
+      await dispatch(updateProduct({ id: editingProduct.id, productData }))
+    } else {
+      await dispatch(createProduct(productData))
+    }
+  }
+
   const lowStockCount = products.filter(product => 
     product.status === 'Estoque Baixo' || product.status === 'Sem Estoque'
   ).length
@@ -64,7 +93,7 @@ function Products() {
           </div>
           <button 
             className="new-product-button"
-            onClick={() => setShowModal(true)}
+            onClick={handleAddClick}
           >
             + Novo Produto
           </button>
@@ -131,7 +160,10 @@ function Products() {
                       </td>
                       <td className="actions-cell">
                         <div className="action-buttons">
-                          <button className="action-button edit-button">
+                          <button 
+                            className="action-button edit-button"
+                            onClick={() => handleEditClick(product)}
+                          >
                             📝 Editar
                           </button>
                           <button 
@@ -149,6 +181,14 @@ function Products() {
             </div>
           )}
         </div>
+
+        <ProductModal
+          isOpen={showModal}
+          onClose={handleModalClose}
+          onSubmit={handleModalSubmit}
+          product={editingProduct}
+          isEditing={isEditing}
+        />
 
         <ConfirmDialog
           isOpen={showDeleteDialog}

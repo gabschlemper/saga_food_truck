@@ -1,109 +1,66 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-// import { apiRequest } from '../../config/api'
-
-// Mock data - replace with real API calls later
-const mockProducts = [
-  {
-    id: 1,
-    name: 'Hambúrguer Artesanal',
-    description: 'Hambúrguer com carne 150g, queijo, alface e tomate',
-    price: 18.50,
-    stock: 2,
-    minimumStock: 5,
-    status: 'Estoque Baixo'
-  },
-  {
-    id: 2,
-    name: 'Batata Frita',
-    description: 'Porção de batata frita crocante (200g)',
-    price: 8.00,
-    stock: 0,
-    minimumStock: 3,
-    status: 'Sem Estoque'
-  },
-  {
-    id: 3,
-    name: 'Refrigerante Lata',
-    description: 'Refrigerante em lata 350ml',
-    price: 4.50,
-    stock: 1,
-    minimumStock: 10,
-    status: 'Estoque Baixo'
-  },
-  {
-    id: 4,
-    name: 'Hot Dog Completo',
-    description: 'Hot dog com salsicha, queijo, batata palha e molhos',
-    price: 12.00,
-    stock: 8,
-    minimumStock: 5,
-    status: 'Disponível'
-  },
-  {
-    id: 5,
-    name: 'Suco Natural',
-    description: 'Suco natural de laranja 300ml',
-    price: 6.00,
-    stock: 15,
-    minimumStock: 8,
-    status: 'Disponível'
-  }
-]
+import { apiRequest } from '../../config/api'
 
 // Async thunks for API calls
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async () => {
-    // TODO: Replace with real API call
-    // const response = await apiRequest('/api/products')
-    // return response.data
-    
-    // Mock delay to simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return mockProducts
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiRequest('/api/products')
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.message || 'Erro ao carregar produtos')
+    }
   }
 )
 
 export const createProduct = createAsyncThunk(
-  'products/createProduct',
-  async (productData) => {
-    // TODO: Replace with real API call
-    // const response = await apiRequest('/api/products', {
-    //   method: 'POST',
-    //   body: JSON.stringify(productData)
-    // })
-    // return response.data
-    
-    await new Promise(resolve => setTimeout(resolve, 300))
-    return { ...productData, id: Date.now() }
+  'products/create',
+  async (productData, { rejectWithValue }) => {
+    try {
+      const response = await apiRequest('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData),
+      })
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.message || 'Erro ao criar produto')
+    }
   }
 )
 
 export const updateProduct = createAsyncThunk(
-  'products/updateProduct',
-  async ({ id, data }) => {
-    // TODO: Replace with real API call
-    // const response = await apiRequest(`/api/products/${id}`, {
-    //   method: 'PUT',
-    //   body: JSON.stringify(data)
-    // })
-    // return response.data
-    
-    await new Promise(resolve => setTimeout(resolve, 300))
-    return { id, ...data }
+  'products/update',
+  async ({ id, productData }, { rejectWithValue }) => {
+    try {
+      const response = await apiRequest(`/api/products/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData),
+      })
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.message || 'Erro ao atualizar produto')
+    }
   }
 )
 
 export const deleteProduct = createAsyncThunk(
   'products/deleteProduct',
-  async (id) => {
-    // TODO: Replace with real API call
-    // await apiRequest(`/api/products/${id}`, {
-    //   method: 'DELETE'
-    // })
-    
-    await new Promise(resolve => setTimeout(resolve, 300))
-    return id
+  async (id, { rejectWithValue }) => {
+    try {
+      await apiRequest(`/api/products/${id}`, {
+        method: 'DELETE'
+      })
+      return id
+    } catch (error) {
+      return rejectWithValue(error.message || 'Erro ao deletar produto')
+    }
   }
 )
 
@@ -135,22 +92,49 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false
-        state.error = action.error.message
+        state.error = action.payload
       })
       // Create product
+      .addCase(createProduct.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
       .addCase(createProduct.fulfilled, (state, action) => {
+        state.loading = false
         state.products.push(action.payload)
       })
+      .addCase(createProduct.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
       // Update product
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
       .addCase(updateProduct.fulfilled, (state, action) => {
+        state.loading = false
         const index = state.products.findIndex(p => p.id === action.payload.id)
         if (index !== -1) {
           state.products[index] = action.payload
         }
       })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
       // Delete product
+      .addCase(deleteProduct.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
       .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.loading = false
         state.products = state.products.filter(p => p.id !== action.payload)
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
       })
   }
 })

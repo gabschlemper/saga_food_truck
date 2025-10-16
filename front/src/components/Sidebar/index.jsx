@@ -33,12 +33,6 @@ function Sidebar() {
     //   icon: '📈',
     //   path: '/relatorios'
     // },
-    {
-      id: 'regras',
-      label: 'Regras de Negócio',
-      icon: '⚙️',
-      path: '/regras-negocio'
-    }
   ]
 
   const handleLogout = () => {

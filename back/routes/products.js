@@ -270,4 +270,21 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+export function getProducts() {
+  return products;
+}
+
+export function updateProductStock(productId, quantity) {
+  const productIndex = products.findIndex(p => p.id === productId);
+  if (productIndex !== -1) {
+    products[productIndex].stock -= quantity;
+    products[productIndex].updatedAt = new Date().toISOString();
+    products[productIndex].status = calculateStatus(
+      products[productIndex].stock, 
+      products[productIndex].minimumStock
+    );
+    console.log(`📦 Estoque atualizado: ${products[productIndex].name} - ${products[productIndex].stock} unidades`);
+  }
+}
+
 export default router;

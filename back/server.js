@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import productsRoutes from './routes/products.js';
 import authRoutes from './routes/authRoutes.js';
+import ordersRoutes from './routes/orders.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/products', productsRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/orders', ordersRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -54,4 +56,5 @@ app.listen(PORT, () => {
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`🔐 Auth endpoint: http://localhost:${PORT}/api/auth/login`);
   console.log(`📦 Products endpoint: http://localhost:${PORT}/api/products`);
+  console.log(`📋 Orders endpoint: http://localhost:${PORT}/api/orders`);
 });

@@ -1,5 +1,5 @@
-const bcrypt = require("bcrypt");
-const userRepository = require("../Repositories/UserRepository");
+/*const bcrypt = require("bcrypt");
+const userRepository = require("../repositories/UserRepository");
 
 class userService {
   constructor() {
@@ -10,7 +10,7 @@ class userService {
   // ---------- Criação ----------
   // Cria um novo usuário
   createUser = async (userData) => {
-    const { name, email, password, user_Type, registry } = userData;
+    const { name, email, password, userType, registry } = userData;
 
     // Garante que email e matrícula sejam únicos
     await this.ensureUniqueEmail(email);
@@ -21,7 +21,7 @@ class userService {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
-      user_Type: user_Type || 4, // tipo padrão 4 se não fornecido
+      userType: userType || 4, // tipo padrão 4 se não fornecido
       registry,
     });
 
@@ -146,4 +146,68 @@ class userService {
   };
 }
 
-module.exports = userService;
+module.exports = userService;*/
+
+// src/services/userService.js
+const bcrypt = require("bcrypt");
+const userRepository = require("../repositories/userRepository");
+
+// ---------- Retorna dados seguros (sem senha e hash) ----------
+function toSafeJSON(user) {
+  if (!user) return null;
+  const { password, passwordHash, ...safe } = user.toJSON ? user.toJSON() : user;
+  return safe;
+}
+
+// ---------- CREATE USER ----------
+async function createUser({ name, email, password, userType = 2, registry }) {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await userRepository.create({
+    name,
+    email,
+    passwordHash: hashedPassword,
+    userType,
+    registry,
+  });
+  return user;
+}
+
+// ---------- GET USER BY ID ----------
+async function getUserById(id) {
+  return userRepository.findById(id);
+}
+
+// ---------- GET ALL USERS ----------
+async function getAllUsers() {
+  const users = await userRepository.findAll();
+  return users.map(toSafeJSON);
+}
+
+// ---------- UPDATE USER ----------
+async function updateUser(id, updates) {
+  if (updates.password) updates.passwordHash = await bcrypt.hash(updates.password, 10);
+  const user = await userRepository.update(id, updates);
+  return user;
+}
+
+// ---------- DELETE USER ----------
+async function deleteUser(id) {
+  return userRepository.hardDelete(id);
+}
+
+// ---------- FIND USER BY EMAIL ----------
+async function findByEmail(email, includePassword = false) {
+  return userRepository.findByEmail(email, includePassword);
+}
+
+// ---------- EXPORTA TODAS AS FUNÇÕES ----------
+module.exports = {
+  createUser,
+  getUserById,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+  findByEmail,
+  toSafeJSON,
+};
+

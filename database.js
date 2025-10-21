@@ -25,8 +25,6 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
  */
 async function initDB() {
   try {
-    console.log("🔄 Conectando ao PostgreSQL...");
-
     // Conecta ao banco padrão 'postgres' para criar o DB se necessário
     const tempSequelize = new Sequelize("postgres", DB_USER, DB_PASSWORD, {
       host: DB_HOST,
@@ -39,7 +37,7 @@ async function initDB() {
 
     // Conecta ao banco específico
     await sequelize.authenticate();
-    console.log("✅ Conexão com o banco estabelecida com sucesso!");
+    console.log("🔄 Conexão com o banco estabelecida com sucesso!");
 
   } catch (error) {
     console.error("❌ Erro ao conectar ou criar o banco:", error.message);
@@ -53,7 +51,6 @@ async function initDB() {
 async function syncModels({ alter = true } = {}) {
   try {
     await sequelize.sync({ alter });
-    console.log("✅ Tabelas sincronizadas com sucesso!");
   } catch (error) {
     console.error("❌ Erro ao sincronizar tabelas:", error.message);
     process.exit(1);

@@ -1,4 +1,4 @@
-const { User } = require("../Models/User");
+/*const User  = require("../models/user");
 const { Op } = require("sequelize");
 
 class userRepository {
@@ -131,7 +131,7 @@ class userRepository {
   findByType = async (userType) => {
     try {
       return await this.model.findAll({
-        where: { user_Type: userType },
+        where: { userType: userType },
         attributes: this.defaultAttributes,
       });
     } catch (error) {
@@ -191,4 +191,58 @@ class userRepository {
   };
 }
 
-module.exports = userRepository;
+module.exports = userRepository;*/
+
+const { User } = require("../models/User");
+const { Op } = require("sequelize");
+
+const defaultAttributes = { exclude: ["passwordHash", "password"] };
+
+// ---------- CREATE ----------
+async function create(userData) {
+  return User.create(userData);
+}
+
+// ---------- FIND BY ID ----------
+async function findById(id, includePassword = false) {
+  const attributes = includePassword ? {} : defaultAttributes;
+  return User.findByPk(id, { attributes });
+}
+
+// ---------- FIND BY EMAIL ----------
+async function findByEmail(email, includePassword = false) {
+  const attributes = includePassword ? {} : defaultAttributes;
+  return User.findOne({ where: { email: email.toLowerCase() }, attributes });
+}
+
+// ---------- FIND ALL ----------
+async function findAll() {
+  return User.findAll({
+    attributes: defaultAttributes,
+    order: [["name", "ASC"]],
+  });
+}
+
+// ---------- UPDATE ----------
+async function update(id, updates) {
+  const user = await findById(id, true);
+  if (!user) throw new Error("not found");
+  await user.update(updates);
+  return user;
+}
+
+// ---------- DELETE ----------
+async function hardDelete(id) {
+  const deleted = await User.destroy({ where: { id } });
+  return deleted > 0;
+}
+
+// ---------- EXPORTA TODAS AS FUNÇÕES ----------
+module.exports = {
+  create,
+  findById,
+  findByEmail,
+  findAll,
+  update,
+  hardDelete,
+};

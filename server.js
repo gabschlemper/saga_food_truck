@@ -28,11 +28,11 @@ app.get("/api/test", (req, res) => {
 });
 
 // Rotas da API
-const login = require("./src/routers/LoginRoad");
-const menu = require("./src/routers/MenuRoad");
-const order = require("./src/routers/OrderRoad");
-const stock = require("./src/routers/StockRoad");
-const guest = require("./src/routers/UserRoad");
+const login = require("./src/Routers/LoginRoad");
+const menu = require("./src/Routers/MenuRoad");
+const order = require("./src/Routers/OrderRoad");
+const stock = require("./src/Routers/StockRoad");
+const guest = require("./src/Routers/UserRoad");
 
 // Registro das rotas
 app.use("/api/login", login);
@@ -42,11 +42,11 @@ app.use("/api/stock", stock);
 app.use("/api/users", guest);
 
 // Importar todos os models 
-require("./src/models/User");
-require("./src/models/Menu");
-require("./src/models/Order");
-require("./src/models/Stock");
-require("./src/models/StockAlert");
+require("./src/Models/User");
+require("./src/Models/Menu");
+require("./src/Models/Order");
+require("./src/Models/Stock");
+require("./src/Models/StockAlert");
 
 (async () => {
   try {
@@ -55,6 +55,8 @@ require("./src/models/StockAlert");
 
     // 🔥 Cria ou atualiza tabelas automaticamente
     await sequelize.sync({ alter: true });
+    console.log("✅ Tabelas sincronizadas com sucesso!");
+
     // Inicia o servidor
     app.listen(PORT, () => {
       console.log(`🚚 Saga Food Truck Backend rodando na porta ${PORT}`);

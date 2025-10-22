@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../Models/user");
 
 const authenticate = async (req, res, next) => {
   try {
@@ -29,7 +29,7 @@ const authenticate = async (req, res, next) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      userType: user.userType,
+      user_Type: user.user_Type,
       permissions:
         typeof user.getPermissions === "function" ? user.getPermissions() : [],
     };

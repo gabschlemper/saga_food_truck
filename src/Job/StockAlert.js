@@ -1,6 +1,6 @@
 const cron = require("node-cron"); // Importa a biblioteca para agendar tarefas
-const Stock = require("../Models/Stock"); // Modelo de estoque
-const StockAlert = require("../Models/StockAlert"); // Modelo de alertas de estoque
+const Stock = require("../models/Stock"); // Modelo de estoque
+const StockAlert = require("../models/StockAlert"); // Modelo de alertas de estoque
 
 // Mapeia as categorias para os dias da semana em que devem ser checadas
 // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado

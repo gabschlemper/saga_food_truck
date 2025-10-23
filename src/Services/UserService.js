@@ -1,5 +1,5 @@
-const bcrypt = require("bcrypt");
-const userRepository = require("../Repositories/UserRepository");
+/*const bcrypt = require("bcrypt");
+const userRepository = require("../repositories/UserRepository");
 
 class userService {
   constructor() {
@@ -10,7 +10,7 @@ class userService {
   // ---------- Criação ----------
   // Cria um novo usuário
   createUser = async (userData) => {
-    const { name, email, password, user_Type, registry } = userData;
+    const { name, email, password, userType, registry } = userData;
 
     // Garante que email e matrícula sejam únicos
     await this.ensureUniqueEmail(email);
@@ -21,7 +21,7 @@ class userService {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
-      user_Type: user_Type || 4, // tipo padrão 4 se não fornecido
+      userType: userType || 4, // tipo padrão 4 se não fornecido
       registry,
     });
 
@@ -146,4 +146,60 @@ class userService {
   };
 }
 
-module.exports = userService;
+module.exports = userService;*/
+
+const { User } = require("../models/user");
+
+// ---------- FUNÇÃO PARA REMOVER CAMPOS SENSÍVEIS ----------
+function toSafeJSON(user) {
+  if (!user) return null;
+  const { id, name, email, userType, registry, createdAt, updatedAt } = user;
+  return { id, name, email, userType, registry, createdAt, updatedAt };
+}
+
+// ---------- CREATE USER ----------
+async function createUser({ name, email, password, userType = 2, registry }) {
+  const user = await User.create({ name, email, password, userType, registry });
+  return user;
+}
+
+// ---------- GET ALL USERS ----------
+async function getAllUsers() {
+  const users = await User.findAll();
+  return users;
+}
+
+// ---------- GET USER BY ID ----------
+async function getUserById(id) {
+  const user = await User.findByPk(id);
+  return user;
+}
+
+// ---------- UPDATE USER ----------
+async function updateUser(id, updates) {
+  const user = await User.findByPk(id);
+  if (!user) throw new Error("User not found");
+
+  await user.update(updates);
+  return user;
+}
+
+// ---------- DELETE USER (soft delete ou desativação) ----------
+async function deleteUser(id) {
+  const user = await User.findByPk(id);
+  if (!user) throw new Error("User not found");
+
+  // Aqui pode fazer soft delete, ou realmente deletar
+  await user.destroy();
+  return { id, deleted: true };
+}
+
+// ---------- EXPORTA TODAS AS FUNÇÕES ----------
+module.exports = {
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  toSafeJSON,
+};

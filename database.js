@@ -5,7 +5,7 @@ const DB_NAME = process.env.DB_NAME;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_HOST = process.env.DB_HOST;
-const DB_PORT = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : undefined;
+const DB_PORT = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432;
 const DB_DIALECT = process.env.DB_DIALECT;
 
 // Instância principal do Sequelize (banco específico)
@@ -18,17 +18,11 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
   define: { freezeTableName: true },
 });
 
-/**
- * Inicializa o banco:
- * - Cria o banco se não existir
- * - Conecta ao banco específico
- */
+// Inicializa o banco: 
 async function initDB() {
   try {
-    console.log("🔄 Conectando ao PostgreSQL...");
-
     // Conecta ao banco padrão 'postgres' para criar o DB se necessário
-    const tempSequelize = new Sequelize("postgres", DB_USER, DB_PASSWORD, {
+    const tempSequelize = new Sequelize(DB_DIALECT, DB_USER, DB_PASSWORD, {
       host: DB_HOST,
       port: DB_PORT,
       dialect: DB_DIALECT,
@@ -39,7 +33,7 @@ async function initDB() {
 
     // Conecta ao banco específico
     await sequelize.authenticate();
-    console.log("✅ Conexão com o banco estabelecida com sucesso!");
+    console.log("🔄 Conexão com o banco estabelecida com sucesso!");
 
   } catch (error) {
     console.error("❌ Erro ao conectar ou criar o banco:", error.message);
@@ -53,7 +47,6 @@ async function initDB() {
 async function syncModels({ alter = true } = {}) {
   try {
     await sequelize.sync({ alter });
-    console.log("✅ Tabelas sincronizadas com sucesso!");
   } catch (error) {
     console.error("❌ Erro ao sincronizar tabelas:", error.message);
     process.exit(1);

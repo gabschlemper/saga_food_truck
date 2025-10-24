@@ -6,31 +6,38 @@ import authRoutes from './routes/authRoutes.js';
 import ordersRoutes from './routes/orders.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
-// Middleware
+// CORS middleware - must be before routes
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default port
-  credentials: true
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Logging middleware
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`, req.body);
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
 
 // Routes
-app.use('/api/products', productsRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productsRoutes);
 app.use('/api/orders', ordersRoutes);
 
-// Health check
+// Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    port: PORT 
+  });
 });
 
 // 404 handler

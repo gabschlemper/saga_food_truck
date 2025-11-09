@@ -15,8 +15,8 @@ Este projeto implementa um sistema de auditoria para operações em uma tabela d
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/pedido-auditoria.git
-cd pedido-auditoria
+git clone https://github.com/gabschlemper/saga_food_truck.git
+cd saga_food_truck
 
 # Suba o container
 docker-compose up -d
@@ -102,3 +102,4 @@ docker-compose up -d
 
 
 Feito com 💻 por Felipe
+

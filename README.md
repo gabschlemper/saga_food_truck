@@ -73,7 +73,7 @@ SELECT * FROM auditoria_pedido;
 - **Porta**: `5432`
 - **Usuário**: `usuario`
 - **Senha**: `usuario123`
-- **Banco**: `pedidos`
+- **Banco**: `postgres`
 
 ---
 
@@ -102,4 +102,5 @@ docker-compose up -d
 
 
 Feito com 💻 por Felipe
+
 

@@ -71,8 +71,8 @@ SELECT * FROM auditoria_pedido;
 
 - **Host**: `localhost`
 - **Porta**: `5432`
-- **Usuário**: `felipe`
-- **Senha**: `minhaSenha123`
+- **Usuário**: `usuario`
+- **Senha**: `usuario123`
 - **Banco**: `pedidos`
 
 ---
@@ -99,5 +99,6 @@ docker-compose up -d
 ```
 
 ---
+
 
 Feito com 💻 por Felipe

@@ -6,9 +6,9 @@ services:
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_USER: felipe
-      POSTGRES_PASSWORD: sua_senha
-      POSTGRES_DB: pedidos
+      POSTGRES_USER: usuario
+      POSTGRES_PASSWORD: usuario123
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     volumes:

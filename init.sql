@@ -1,4 +1,4 @@
-﻿CREATE SCHEMA IF NOT EXISTS public AUTHORIZATION pg_database_owner;
+CREATE SCHEMA IF NOT EXISTS public AUTHORIZATION pg_database_owner;
 
 CREATE TYPE public.tipo_status AS ENUM (
     'pendente',

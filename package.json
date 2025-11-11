@@ -1,0 +1,21 @@
+{
+  "name": "saga_food_truck",
+  "version": "1.0.0",
+  "description": "Aplicação completa de food truck com frontend (React/Vite) e backend (Node.js/Express).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:fe": "cd front && npm run dev" 
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabschlemper/saga_food_truck.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gabschlemper/saga_food_truck/issues"
+  },
+  "homepage": "https://github.com/gabschlemper/saga_food_truck#readme"
+}

@@ -1,144 +1,107 @@
-Aplicação de Food Truck Completa
-Aplicação completa de food truck com frontend (React/Vite) e backend (Node.js/Express).
 
-📋 Pré-requisitos
+# 📦 Auditoria de Pedidos com PostgreSQL e Docker
 
-Node.js (versão 18.x ou superior)
+Este projeto implementa um sistema de auditoria para operações em uma tabela de pedidos, utilizando **PostgreSQL 18** em ambiente **Docker**. A estrutura inclui tipos personalizados, triggers automáticos e uma função de auditoria que registra ações de `INSERT`, `UPDATE` e `DELETE`.
 
-npm (versão 8.x ou superior)
+---
 
-Docker Desktop (para futuras funcionalidades de banco de dados)
+## 🚀 Como executar o projeto
 
-Git (para clonar o repositório)
+### Pré-requisitos
 
-🚀 Como rodar o projeto completo
+- Docker instalado
+- Git instalado
 
-1. Clonar o repositório
-git clone <url-do-repositorio>
+### Passos
+
+```bash
+# Clone o repositório
+git clone https://github.com/gabschlemper/saga_food_truck.git
 cd saga_food_truck
 
-2. Configurar e Iniciar o Backend
-O Backend deve ser iniciado em um terminal separado.
+# Suba o container
+docker-compose up -d
+```
 
-# Navegar para a pasta do backend
-cd back
+> O banco será criado automaticamente com base no arquivo `init.sql`.
 
-# Copiar arquivo de configuração
-cp .env.example .env
+---
 
-# Instalar dependências
-npm install
+## 🧱 Estrutura do banco
 
-# Iniciar o servidor (em um terminal separado)
-npm run dev
-O backend estará rodando em: http://localhost:3002
+### Tabelas
 
-3. Configurar e Iniciar o Frontend
-O Frontend agora pode ser iniciado a partir da pasta raiz (saga_food_truck/) usando um único comando.
+- `pedido`: tabela principal com campos como `id_pedido`, `status`, `forma_de_pagamento`, `data_criacao`
+- `auditoria_pedido`: registra ações realizadas na tabela `pedido`
 
-Primeira Configuração (apenas uma vez):
+### Tipos ENUM
 
-# Navegar para a pasta do frontend
-cd front
+- `status`: `'pendente'`, `'em_preparacao'`, `'pronto'`, `'entregue'`
+- `forma_de_pagamento`: `'dinheiro'`, `'cartao'`, `'pix'`
 
-# Copiar arquivo de configuração
-cp .env.example .env
+### Função de auditoria
 
-# Instalar dependências
-npm install
-Para iniciar o Frontend (em um NOVO terminal, a partir da pasta raiz saga_food_truck):
+```sql
+registrar_autoria_pedido()
+```
 
-npm run start:fe
-O frontend estará rodando em: http://localhost:5173
+Registra o tipo de operação (`TG_OP`) e o `id_pedido` na tabela de auditoria.
 
-4. Testar a aplicação
-Acesse http://localhost:5173 no navegador.
+### Triggers
 
-A Página Home (página principal) agora contém os botões de teste de API. Clique neles para verificar a comunicação com o Backend.
+- `AFTER INSERT`: `registrar_autoria_pedido`
+- `AFTER UPDATE`: `autoria_update`
+- `AFTER DELETE`: `autoria_delete`
 
-Verifique os logs no terminal do backend para confirmação.
+---
 
-📁 Estrutura do projeto
+## 🧪 Testes
 
-saga_food_truck/
-├── back/                 # Backend (Node.js/Express)
-│   ├── server.js        # Servidor principal
-│   ├── package.json     # Dependências do backend
-│   ├── .env.example     # Variáveis de ambiente (exemplo)
-│   └── .env             # Variáveis de ambiente (local)
-├── front/               # Frontend (React/Vite)
-│   ├── src/            # Código fonte
-│   ├── pages/          # Páginas (Home, Menu, etc.)
-│   ├── package.json    # Dependências do frontend
-│   ├── .env.example    # Variáveis de ambiente (exemplo)
-│   └── .env            # Variáveis de ambiente (local)
-└── README.md           # Este arquivo
+Você pode testar os triggers executando comandos como:
 
-⚙️ Configurações
+```sql
+INSERT INTO pedido (...) VALUES (...);
+UPDATE pedido SET status = 'pronto' WHERE id_pedido = ...;
+DELETE FROM pedido WHERE id_pedido = ...;
+SELECT * FROM auditoria_pedido;
+```
 
-Backend (.env)
-PORT=3002
-Frontend (.env)
+---
 
-VITE_API_BASE_URL=http://localhost:3002
-(A URL deve apontar para a porta do backend, 3002)
+## 🛠 Conexão com DBeaver
 
-📜 Scripts disponíveis
+- **Host**: `localhost`
+- **Porta**: `5432`
+- **Usuário**: `usuario`
+- **Senha**: `senha123`
+- **Banco**: `postgres`
 
-Geral (pasta raiz saga_food_truck)
+---
 
-Script	Descrição
-npm run start:fe	NOVO! Inicia o Frontend (entra na pasta front e executa npm run dev).
-Backend
+## 📁 Estrutura do projeto
 
-Script	Descrição
-npm start	Servidor em modo produção
-npm run dev	Servidor em modo desenvolvimento (nodemon)
-Frontend (use apenas se estiver dentro da pasta front)
+```
+pedido-auditoria/
+├── docker-compose.yml
+├── init.sql
+├── README.md
+```
 
-Script	Descrição
-npm run dev	Servidor de desenvolvimento
-npm run build	Build de produção
-npm run preview	Preview da build
-npm run lint	Linter ESLint
+---
 
-🔧 Problemas comuns
+## 📌 Observações
 
-Porta já em uso
-Erro: EADDRINUSE: address already in use :::3000
+- O script `init.sql` é executado automaticamente apenas na **primeira vez** que o container é iniciado.
+- Para forçar a reexecução do script, use:
 
-Soluções:
+```bash
+docker-compose down -v
+docker-compose up -d
+```
 
-# Verificar o que está usando a porta
-lsof -i :3000
-# Matar o processo (substitua <PID> pelo número do processo)
-kill -9 <PID>
-# Ou alterar a porta no arquivo back/.env
-PORT=3001
-Frontend não conecta com Backend
+---
 
-Problema: Botões de teste retornam erro
+Feito com 💻 por Felipe e Ian
 
-Soluções:
 
-Verificar se o backend está rodando (http://localhost:3002)
-Verificar se a URL no front/.env está correta (VITE_API_BASE_URL=http://localhost:3002)
-Verificar se as portas não estão sendo bloqueadas pelo firewall
-Dependências não instaladas
 
-Erro: Module not found
-Solução:
-
-# No backend
-cd back && npm install
-
-# No frontend
-cd front && npm install
-Docker (futuro)
-
-Preparação para containers:
-
-# Verificar se Docker está rodando
-docker --version
-docker-compose --version
-Variáveis de ambiente não carregadas

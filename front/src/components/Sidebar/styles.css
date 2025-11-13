@@ -17,19 +17,37 @@
 }
 
 .sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  display: block;
+}
+
+.logo-icon,
+.logo-text {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .logo-icon {
   font-size: 1.5rem;
   color: #f97316;
+  margin-right: 0.4rem;
 }
 
 .logo-text {
   font-size: 1.125rem;
   font-weight: 600;
+  color: #111827;
+  line-height: 1;
+}
+
+.logo-subtext {
+  display: block;
+  font-size: 0.79rem;
+  color: #6b7280;
+  margin-top: 4px;
+  margin-left: 0;
+}
+
+.logo-subtext b {
   color: #111827;
 }
 
@@ -112,7 +130,6 @@
   color: #dc2626;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;

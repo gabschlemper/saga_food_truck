@@ -50,6 +50,9 @@ function Sidebar() {
         <div className="sidebar-logo">
           <span className="logo-icon">🛒</span>
           <span className="logo-text">SAGA Food Truck</span>
+	<p>  
+          <span className="logo-subtext">Logado como: <b>Administrador</b></span>
+	</p>
         </div>
       </div>
 

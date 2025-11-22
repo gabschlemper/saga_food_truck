@@ -26,9 +26,17 @@ router.get('/', async (req, res) => {
       ORDER BY name ASC
     `);
     
+    // Convert numeric fields from strings to numbers
+    const products = result.rows.map(product => ({
+      ...product,
+      price: parseFloat(product.price),
+      stock: parseInt(product.stock),
+      minimumStock: parseInt(product.minimumStock)
+    }));
+    
     res.json({
       success: true,
-      data: result.rows,
+      data: products,
       count: result.rows.length
     });
   } catch (error) {
@@ -71,9 +79,16 @@ router.get('/:id', async (req, res) => {
       });
     }
     
+    const product = result.rows[0];
+    
     res.json({
       success: true,
-      data: result.rows[0]
+      data: {
+        ...product,
+        price: parseFloat(product.price),
+        stock: parseInt(product.stock),
+        minimumStock: parseInt(product.minimumStock)
+      }
     });
   } catch (error) {
     console.error('❌ Erro ao buscar produto:', error);
@@ -148,11 +163,17 @@ router.post('/', async (req, res) => {
       categoryValue
     ]);
     
-    console.log(`✅ Produto criado: ${result.rows[0].name} (ID: ${result.rows[0].id})`);
+    const newProduct = result.rows[0];
+    console.log(`✅ Produto criado: ${newProduct.name} (ID: ${newProduct.id})`);
     
     res.status(201).json({
       success: true,
-      data: result.rows[0],
+      data: {
+        ...newProduct,
+        price: parseFloat(newProduct.price),
+        stock: parseInt(newProduct.stock),
+        minimumStock: parseInt(newProduct.minimumStock)
+      },
       message: 'Produto criado com sucesso'
     });
   } catch (error) {
@@ -283,11 +304,17 @@ router.put('/:id', async (req, res) => {
         "updatedAt"
     `, values);
     
-    console.log(`✅ Produto atualizado: ${result.rows[0].name}`);
+    const updatedProduct = result.rows[0];
+    console.log(`✅ Produto atualizado: ${updatedProduct.name}`);
     
     res.json({
       success: true,
-      data: result.rows[0],
+      data: {
+        ...updatedProduct,
+        price: parseFloat(updatedProduct.price),
+        stock: parseInt(updatedProduct.stock),
+        minimumStock: parseInt(updatedProduct.minimumStock)
+      },
       message: 'Produto atualizado com sucesso'
     });
   } catch (error) {

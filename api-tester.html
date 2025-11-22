@@ -163,6 +163,24 @@
                 <div id="create-status"></div>
                 <pre id="create-result" style="display:none;"></pre>
             </div>
+
+            <!-- Create Order -->
+            <div class="card">
+                <h2>🛒 Criar Pedido</h2>
+                <div class="endpoint">POST /api/orders</div>
+                <button onclick="createOrder()">Testar POST Order</button>
+                <div id="create-order-status"></div>
+                <pre id="create-order-result" style="display:none;"></pre>
+            </div>
+
+            <!-- Update Order -->
+            <div class="card">
+                <h2>📝 Atualizar Pedido #1</h2>
+                <div class="endpoint">PUT /api/orders/1</div>
+                <button onclick="updateOrder()">Marcar como Pronto</button>
+                <div id="update-order-status"></div>
+                <pre id="update-order-result" style="display:none;"></pre>
+            </div>
         </div>
     </div>
 
@@ -282,6 +300,106 @@
             console.log('🚀 SAGA API Tester carregado!');
             console.log('Servidor esperado em:', API_URL);
         };
+
+        async function createOrder() {
+            const statusDiv = document.getElementById('create-order-status');
+            const resultPre = document.getElementById('create-order-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = '⏳ Criando pedido de teste...';
+            resultPre.style.display = 'none';
+
+            const newOrder = {
+                customer: 'Cliente Teste API',
+                items: [
+                    {
+                        productId: 1,
+                        name: 'Hambúrguer Artesanal',
+                        quantity: 2,
+                        price: 18.50
+                    },
+                    {
+                        productId: 3,
+                        name: 'Refrigerante Lata',
+                        quantity: 2,
+                        price: 4.50
+                    }
+                ],
+                paymentMethod: 'Pix',
+                employeeId: 1,
+                notes: 'Pedido criado via API Tester'
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newOrder)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = `✅ Pedido criado! ID: ${data.data.id} - Total: R$ ${data.data.total}`;
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = `⚠️ Erro ao criar: ${data.message}`;
+                }
+                
+                resultPre.textContent = JSON.stringify(data, null, 2);
+                resultPre.style.display = 'block';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `❌ Erro: ${error.message}`;
+                resultPre.textContent = error.stack;
+                resultPre.style.display = 'block';
+            }
+        }
+
+        async function updateOrder() {
+            const statusDiv = document.getElementById('update-order-status');
+            const resultPre = document.getElementById('update-order-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = '⏳ Atualizando pedido...';
+            resultPre.style.display = 'none';
+
+            const updateData = {
+                status: 'Pronto',
+                paymentStatus: 'Pago'
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/orders/1`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = `✅ Pedido atualizado! Status: ${data.data.status}`;
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = `⚠️ Erro: ${data.message}`;
+                }
+                
+                resultPre.textContent = JSON.stringify(data, null, 2);
+                resultPre.style.display = 'block';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `❌ Erro: ${error.message}`;
+                resultPre.textContent = error.stack;
+                resultPre.style.display = 'block';
+            }
+        }
     </script>
 </body>
 </html>

@@ -145,7 +145,7 @@ function Products() {
                         </div>
                       </td>
                       <td className="price-cell">
-                        R$ {product.price.toFixed(2)}
+                        R$ {parseFloat(product.price).toFixed(2)}
                       </td>
                       <td className="stock-cell">
                         <div className="stock-info">

@@ -1,16 +1,22 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { testConnection } from './config/database.js';
 import productsRoutes from './routes/products.js';
 import authRoutes from './routes/authRoutes.js';
 import ordersRoutes from './routes/orders.js';
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3000;
 
-// CORS middleware - must be before routes
+// Test database connection on startup (não bloqueia o servidor)
+testConnection().catch(err => {
+  console.error('⚠️ Erro na conexão inicial, mas servidor continuará rodando:', err.message);
+});
+
+// CORS middleware - must be before routes (permite file:// para teste local)
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: true, // Aceita qualquer origem em desenvolvimento
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

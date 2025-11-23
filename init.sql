@@ -76,6 +76,22 @@ CREATE TABLE employees (
 -- Índices para melhor performance
 CREATE INDEX idx_employees_email ON employees(email);
 CREATE INDEX idx_employees_role ON employees(role);
+
+CREATE TABLE admin (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL, -- Em produção, usar hash (bcrypt)
+    role user_role_type NOT NULL DEFAULT 'admin',
+    active BOOLEAN DEFAULT TRUE,
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+ 
+-- Índices para melhor performance
+CREATE INDEX idx_admin_email ON admin(email);
+CREATE INDEX idx_admin_role ON admin(role);
+ 
  
 -- ============================================
 -- TABELA: customers (clientes)

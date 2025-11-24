@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:fe": "cd front && npm run dev" 
+    "start:fe": "cd front && npm run dev"
   },
   "repository": {
     "type": "git",
@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/gabschlemper/saga_food_truck/issues"
   },
-  "homepage": "https://github.com/gabschlemper/saga_food_truck#readme"
+  "homepage": "https://github.com/gabschlemper/saga_food_truck#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  }
 }

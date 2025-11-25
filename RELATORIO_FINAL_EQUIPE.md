@@ -2,7 +2,7 @@
 ## Sistema de Gerenciamento para Food Trucks
 
 **Data de Conclusão:** 23 de Novembro de 2025  
-**Equipe:** Gabriel Schlemper, Felipe  
+**Equipe:** Gabriela Schlemper, Felipe, Juan Habitzreuter, Valaquiria Prussek e Ian Carvalhaes  
 **Branch:** felipe  
 **Repositório:** https://github.com/gabschlemper/saga_food_truck
 

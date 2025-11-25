@@ -47,6 +47,11 @@ export const apiRequest = async (endpoint, options = {}) => {
       
       throw new Error(errorMessage);
     }
+
+    // 🔥 Correção mínima: se for GET no login, só retorna ok
+    if (endpoint === '/api/auth/login' && (!options.method || options.method === 'GET')) {
+      return { ok: true };
+    }
     
     return await response.json();
   } catch (error) {

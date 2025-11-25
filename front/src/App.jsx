@@ -1,20 +1,25 @@
 // src/App.jsx
+import { Provider } from "react-redux";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { store } from "./store";
 
-import { Provider } from 'react-redux'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { store } from './store'
-import { useAppSelector } from './store/hooks'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Home from './pages/Home' // Keep for testing purposes
-import Products from './pages/Products'
-import Orders from './pages/Orders'
-import './styles.css'
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import TelaAtendente from "./pages/TelaAtendente";
+import Home from "./pages/Home";
+import Products from "./pages/Products";
+import Orders from "./pages/Orders";
+import NewOrder from "./pages/NewOrder";
 
-// Protected Route component
+import "./styles.css";
+
 function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAppSelector((state) => state.auth)
-  return isAuthenticated ? children : <Navigate to="/login" replace />
+  const token = localStorage.getItem("authToken");
+
+  // Sem token → volta pro login
+  if (!token) return <Navigate to="/login" replace />;
+
+  return children;
 }
 
 function App() {
@@ -22,32 +27,42 @@ function App() {
     <Provider store={store}>
       <BrowserRouter>
         <Routes>
-          {/* Redirect root to login */}
+
+          {/* Redireciona "/" → "/login" */}
           <Route path="/" element={<Navigate to="/login" replace />} />
-          
-          {/* Login route */}
+
+          {/* LOGIN */}
           <Route path="/login" element={<Login />} />
-          
-          {/* Protected dashboard route */}
-          <Route 
-            path="/dashboard" 
+
+          {/* ROTAS PROTEGIDAS */}
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          
-          {/* Keep home for testing API connectivity */}
+
+          <Route
+            path="/atendente"
+            element={
+              <ProtectedRoute>
+                <TelaAtendente />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* OUTRAS TELAS */}
           <Route path="/test" element={<Home />} />
-          
-          {/* Products and Orders routes */}
           <Route path="/produtos" element={<Products />} />
           <Route path="/pedidos" element={<Orders />} />
+          <Route path="/novo-pedido" element={<NewOrder />} />
+
         </Routes>
       </BrowserRouter>
     </Provider>
-  )
+  );
 }
 
-export default App
+export default App;

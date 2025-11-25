@@ -143,7 +143,7 @@ function Orders() {
                     </span>
                   </div>
                   <div className="order-footer">
-                    <span className="order-total">R$ {order.total.toFixed(2)}</span>
+                    <span className="order-total">R$ {parseFloat(order.total).toFixed(2)}</span>
                     <span className={`order-status ${getStatusColor(order.status)}`}>
                       {order.status}
                     </span>

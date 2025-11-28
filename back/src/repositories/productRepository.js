@@ -1,21 +1,21 @@
-const BaseRepository = require("./baseRepository");
-const Product = require("../models/product");
-const { Op, Sequelize } = require("sequelize");
+import BaseRepository from "./baseRepository.js";
+import Product from "../models/product.js";
+import { Op, Sequelize } from "sequelize";
 
-// Reaproveita os métodos base: findAll, findById, create, update, delete
-const base = BaseRepository(Product);
+const baseRepository = BaseRepository(Product);
 
-async function findLowStock() {
-  return Product.findAll({
-    where: {
-      stock: {
-        [Op.lte]: Sequelize.col("minimumStock"),
+const ProductRepository = {
+  ...baseRepository,
+  // Busca produtos com estoque baixo
+  async findLowStock() {
+    return Product.findAll({
+      where: {
+        stock: {
+          [Op.lte]: Sequelize.col("minimumStock"),
+        },
       },
-    },
-  });
-}
-
-module.exports = {
-  ...base,
-  findLowStock,
+    });
+  },
 };
+
+export default ProductRepository;

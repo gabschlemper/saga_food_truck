@@ -1,8 +1,7 @@
-const express = require("express");
-
-const AuditController = require("../controllers/auditController");
-const auth = require("../middlewares/authMiddleware");
-const role = require("../middlewares/roleMiddleware");
+import express from "express";
+import AuditController from "../controllers/auditController.js";
+import auth from "../middlewares/authMiddleware.js";
+import role from "../middlewares/roleMiddleware.js";
 
 const router = express.Router();
 
@@ -12,7 +11,6 @@ router.get(
   role("admin"),
   AuditController.getOrderAudit
 );
-
 router.get(
   "/products/:productId",
   auth,
@@ -20,4 +18,4 @@ router.get(
   AuditController.getProductAudit
 );
 
-module.exports = router;
+export default router;

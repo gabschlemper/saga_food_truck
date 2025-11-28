@@ -1,57 +1,59 @@
-const Order = require("../models/Order");
-const OrderItem = require("../models/orderItem");
-const Employee = require("../models/employee");
-const Customer = require("../models/customer");
-
+import OrderRepository from "../repositories/orderRepositories.js";
+import OrderItemRepository from "../repositories/orderItemRepository.js";
+import EmployeeRepository from "../repositories/employeeRepository.js";
+import CustomerRepository from "../repositories/customerRepository.js";
+// Buscar todos os pedidos com relações
 async function getAll() {
-  return Order.findAll({
+  return OrderRepository.findAll({
     include: [
-      { model: Employee, attributes: ["id", "name"] },
-      { model: Customer, attributes: ["id", "name"] },
-      { model: OrderItem },
+      { model: EmployeeRepository, attributes: ["id", "name"] },
+      { model: CustomerRepository, attributes: ["id", "name"] },
+      { model: OrderItemRepository },
     ],
   });
 }
-
+// Buscar pedido por ID com itens
 async function getById(id) {
-  const order = await Order.findByPk(id, {
-    include: [OrderItem],
+  const order = await OrderRepository.findByPk(id, {
+    include: [OrderItemRepository],
   });
 
   if (!order) throw new Error("Order not found");
 
   return order;
 }
-
+// Criar pedido com itens
 async function create(data, items = []) {
-  const order = await Order.create(data);
+  const order = await OrderRepository.create(data);
 
   if (items.length > 0) {
     for (const item of items) {
-      await OrderItem.create({
+      await OrderItemRepository.create({
         ...item,
         orderId: order.id,
       });
     }
   }
 
-  return getById(order.id); // mantém o mesmo comportamento da classe
+  return getById(order.id);
 }
-
+// Atualizar pedido
 async function update(id, data) {
   const order = await getById(id);
   return order.update(data);
 }
-
+// Remover pedido
 async function remove(id) {
   const order = await getById(id);
   return order.destroy();
 }
+// Exportações
+export { getAll, getById, create, update, remove };
 
-module.exports = {
+export default {
   getAll,
   getById,
   create,
   update,
-  delete: remove,
+  remove,
 };

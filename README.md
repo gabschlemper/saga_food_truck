@@ -1,4 +1,3 @@
-
 # 📦 Auditoria de Pedidos com PostgreSQL e Docker
 
 Este projeto implementa um sistema de auditoria para operações em uma tabela de pedidos, utilizando **PostgreSQL 18** em ambiente **Docker**. A estrutura inclui tipos personalizados, triggers automáticos e uma função de auditoria que registra ações de `INSERT`, `UPDATE` e `DELETE`.
@@ -71,7 +70,7 @@ SELECT * FROM auditoria_pedido;
 ## 🛠 Conexão com DBeaver
 
 - **Host**: `localhost`
-- **Porta**: `5432`
+- **Porta**: `5434`
 - **Usuário**: `usuario`
 - **Senha**: `senha123`
 - **Banco**: `postgres`
@@ -102,6 +101,3 @@ docker-compose up -d
 ---
 
 Feito com 💻 por Felipe e Ian
-
-
-

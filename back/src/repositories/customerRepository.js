@@ -1,4 +1,4 @@
-const BaseRepository = require("./baseRepository");
-const Customer = require("../models/customer");
+import BaseRepository from "./baseRepository.js";
+import Customer from "../models/customer.js";
 
-module.exports = BaseRepository(Customer);
+export default BaseRepository(Customer);

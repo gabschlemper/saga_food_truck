@@ -1,4 +1,4 @@
-function validate(schema) {
+export default function validate(schema) {
   return async function (req, res, next) {
     try {
       req.body = await schema.validate(req.body, {
@@ -15,5 +15,3 @@ function validate(schema) {
     }
   };
 }
-
-module.exports = validate;

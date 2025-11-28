@@ -1,30 +1,29 @@
-const BaseRepository = require("./baseRepository");
-const Order = require("../models/Order");
-const OrderItem = require("../models/orderItem");
-const Customer = require("../models/customer");
-const Employee = require("../models/employee");
+import BaseRepository from "./baseRepository.js";
+import Order from "../models/order.js";
+import OrderItem from "../models/orderItem.js";
+import Customer from "../models/customer.js";
+import Employee from "../models/employee.js";
 
-// cria os métodos básicos: findAll, findById, create, update, delete
-const base = BaseRepository(Order);
+const baseRepository = BaseRepository(Order);
 
-async function findWithRelations(id) {
-  return Order.findByPk(id, {
-    include: [
-      { model: Employee, attributes: ["id", "name"] },
-      { model: Customer, attributes: ["id", "name"] },
-      { model: OrderItem },
-    ],
-  });
-}
-
-async function findAllWithRelations() {
-  return Order.findAll({
-    include: [{ model: Employee }, { model: Customer }, { model: OrderItem }],
-  });
-}
-
-module.exports = {
-  ...base,
-  findWithRelations,
-  findAllWithRelations,
+const OrderRepository = {
+  ...baseRepository,
+  // Busca um pedido com relações (Employee, Customer, OrderItem)
+  async findWithRelations(id) {
+    return Order.findByPk(id, {
+      include: [
+        { model: Employee, attributes: ["id", "name"] },
+        { model: Customer, attributes: ["id", "name"] },
+        { model: OrderItem },
+      ],
+    });
+  },
+  // Busca todos os pedidos com relações
+  async findAllWithRelations() {
+    return Order.findAll({
+      include: [{ model: Employee }, { model: Customer }, { model: OrderItem }],
+    });
+  },
 };
+
+export default OrderRepository;

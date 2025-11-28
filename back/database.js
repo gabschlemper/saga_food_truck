@@ -9,14 +9,12 @@ export const sequelize = new Sequelize(
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : undefined,
+    port: parseInt(process.env.DB_PORT, 10) || 5434, // <-- usa 5434 se não definido
     dialect: process.env.DB_DIALECT,
     logging: false,
     dialectOptions:
       process.env.DB_SSL === "true"
-        ? {
-            ssl: { require: true, rejectUnauthorized: false },
-          }
+        ? { ssl: { require: true, rejectUnauthorized: false } }
         : {},
     pool: { max: 5, min: 0, acquire: 30000, idle: 10000 },
     define: { freezeTableName: true },

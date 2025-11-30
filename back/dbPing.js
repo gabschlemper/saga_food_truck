@@ -15,9 +15,9 @@ export default async function testConnection() {
 
   try {
     await pool.query("SELECT 1");
-    console.log("DB OK");
+    console.log("📂 Conectado ao banco de dados");
   } catch (err) {
-    console.error("Erro ao conectar com o banco:", err);
+    console.error("🧨Erro ao conectar com o banco:", err);
   } finally {
     await pool.end();
   }

@@ -7,13 +7,13 @@ async function getAll() {
 }
 // Buscar por ID
 async function getById(id) {
-  const employee = await EmployeeRepository.findByPk(id);
+  const employee = await EmployeeRepository.getById(id);
   if (!employee) throw new Error("Employee not found");
   return employee;
 }
 // Buscar por email (para login)
 async function findByEmail(email) {
-  return EmployeeRepository.findByEmail(email); // ✅ chama o método do repository
+  return EmployeeRepository.findByEmail(email);
 }
 // Criar novo funcionário (já com senha criptografada)
 async function create(data) {
@@ -44,14 +44,12 @@ async function login(email, password) {
   const token = jwt.sign(
     { id: employee.id, role: employee.role },
     process.env.JWT_SECRET || "secret",
-    { expiresIn: "1h" }
+    { expiresIn: "10h" }
   );
 
   return { employee, token };
 }
 // Exportações
-export { getAll, getById, findByEmail, create, update, remove, login };
-
 export default {
   getAll,
   getById,
@@ -60,5 +58,4 @@ export default {
   update,
   remove,
   login,
-  remove,
 };

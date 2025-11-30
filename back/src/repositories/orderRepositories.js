@@ -4,25 +4,41 @@ import OrderItem from "../models/orderItem.js";
 import Customer from "../models/customer.js";
 import Employee from "../models/employee.js";
 
+// Repositório base com CRUD (create, update, delete, findByPk, findAll, etc.)
 const baseRepository = BaseRepository(Order);
+
+// Configuração padrão de relações
+const defaultRelations = [
+  { model: Employee, as: "employee", attributes: ["id", "name"] },
+  {
+    model: Customer,
+    as: "customer",
+    attributes: ["id", "customerName", "email", "phone"],
+  },
+  { model: OrderItem, as: "items" },
+];
 
 const OrderRepository = {
   ...baseRepository,
-  // Busca um pedido com relações (Employee, Customer, OrderItem)
-  async findWithRelations(id) {
-    return Order.findByPk(id, {
-      include: [
-        { model: Employee, attributes: ["id", "name"] },
-        { model: Customer, attributes: ["id", "name"] },
-        { model: OrderItem },
-      ],
-    });
+
+  // Buscar pedido por ID (sem relações)
+  async findByPk(id, options = {}) {
+    return Order.findByPk(id, { ...options });
   },
-  // Busca todos os pedidos com relações
-  async findAllWithRelations() {
-    return Order.findAll({
-      include: [{ model: Employee }, { model: Customer }, { model: OrderItem }],
-    });
+
+  // Buscar pedido por ID com relações
+  async findWithRelations(id, options = {}) {
+    return Order.findByPk(id, { ...options, include: defaultRelations });
+  },
+
+  // Buscar todos os pedidos com relações
+  async findAllWithRelations(options = {}) {
+    return Order.findAll({ ...options, include: defaultRelations });
+  },
+
+  // Buscar paginado com relações
+  async findAndCountAll(options = {}) {
+    return Order.findAndCountAll({ ...options, include: defaultRelations });
   },
 };
 

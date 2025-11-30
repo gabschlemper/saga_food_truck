@@ -1,10 +1,9 @@
-const request = require("supertest");
-const app = require("../../../app");
+import request from "supertest";
+import app from "../../../app.js"; // importa o app sem listen
 
-jest.mock(
-  "../../../middleware/authMiddleware",
-  () => (req, res, next) => next()
-);
+jest.mock("../../../middleware/authMiddleware.js", () => {
+  return (req, res, next) => next();
+});
 
 describe("Products Routes", () => {
   test("GET /products", async () => {

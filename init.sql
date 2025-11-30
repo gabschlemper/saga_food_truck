@@ -210,6 +210,19 @@ CREATE TABLE product_audit (
  
 -- Índice
 CREATE INDEX idx_product_audit_product ON product_audit("productId");
+
+
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    "orderId" INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    "productId" INTEGER NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    quantity INTEGER NOT NULL,
+    price NUMERIC(10,2) NOT NULL,
+    subtotal NUMERIC(10,2) NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
  
 -- ============================================
 -- FUNCTIONS E TRIGGERS

@@ -1,4 +1,7 @@
 import OrderService from "../services/orderService.js";
+import Employee from "../models/employee.js";
+import Customer from "../models/customer.js";
+import OrderItem from "../models/orderItem.js";
 // LISTAR PEDIDOS
 async function list(req, res) {
   try {
@@ -17,8 +20,13 @@ async function list(req, res) {
       limit,
       offset,
       include: [
-        { model: OrderService.Employee, attributes: ["id", "name"] },
-        { model: OrderService.Customer, attributes: ["id", "name"] },
+        { model: Employee, as: "employee", attributes: ["id", "name"] },
+        {
+          model: Customer,
+          as: "customer",
+          attributes: ["id", "name", "email", "phone"],
+        },
+        { model: OrderItem, as: "items" },
       ],
     });
 
@@ -32,11 +40,15 @@ async function list(req, res) {
 async function getById(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const order = await OrderService.findByPk(id, {
+    const order = await OrderService.getById(id, {
       include: [
-        { model: OrderService.Employee, attributes: ["id", "name"] },
-        { model: OrderService.Customer, attributes: ["id", "name"] },
-        { model: OrderService.OrderItem },
+        { model: Employee, as: "employee", attributes: ["id", "name"] },
+        {
+          model: Customer,
+          as: "customer",
+          attributes: ["id", "name", "email", "phone"],
+        },
+        { model: OrderItem, as: "items" },
       ],
     });
 
@@ -51,30 +63,32 @@ async function getById(req, res) {
 // CRIAR PEDIDO
 async function create(req, res) {
   try {
-    const created = await OrderService.create(req.body);
-    return res.status(201).json(created);
+    const { customer, items, ...orderData } = req.body;
+    const { order, createdCustomer } = await OrderService.create(
+      orderData,
+      customer,
+      items
+    );
+    return res.status(201).json({ order, customer: createdCustomer });
   } catch (err) {
-    console.error(err);
+    console.error("💥 [CREATE ORDER] Erro:", err);
     return res.status(500).json({ error: "Erro ao criar pedido" });
   }
 }
 // ATUALIZAR PEDIDO
 async function update(req, res) {
   try {
-    const id = parseInt(req.params.id);
-    const order = await OrderService.findByPk(id);
+    const id = parseInt(req.params.id, 10);
+    const order = await OrderService.getById(id);
 
-    if (!order) return res.status(404).json({ error: "Pedido não encontrado" });
+    if (!order) {
+      return res.status(404).json({ error: "Pedido não encontrado" });
+    }
 
-    const { status, paymentStatus, paymentMethod, notes } = req.body;
-    await OrderService.update(id, {
-      status,
-      paymentStatus,
-      paymentMethod,
-      notes,
-    });
+    // 👇 aqui você passa o body inteiro
+    await OrderService.update(id, req.body);
 
-    const updatedOrder = await OrderService.findByPk(id);
+    const updatedOrder = await OrderService.getById(id);
     return res.json(updatedOrder);
   } catch (err) {
     console.error(err);
@@ -85,7 +99,7 @@ async function update(req, res) {
 async function remove(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const order = await OrderService.findByPk(id);
+    const order = await OrderService.getById(id);
 
     if (!order) return res.status(404).json({ error: "Pedido não encontrado" });
 

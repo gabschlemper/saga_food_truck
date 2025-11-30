@@ -1,13 +1,17 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../../database.js"; // caminho correto
+import sequelize from "../../database.js";
+// Importar os outros models
+import Employee from "./employee.js";
+import Customer from "./customer.js";
+import OrderItem from "./orderItem.js";
 
 const Order = sequelize.define(
   "Order",
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     employeeId: { type: DataTypes.INTEGER, allowNull: false },
-    customerId: { type: DataTypes.INTEGER },
-    customer: { type: DataTypes.STRING, allowNull: false },
+    customerId: { type: DataTypes.INTEGER, allowNull: true }, // pode ser nulo
+    customerName: { type: DataTypes.STRING, allowNull: true }, // 👈 renomeado para evitar colisão
 
     total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
 
@@ -38,13 +42,16 @@ const Order = sequelize.define(
     },
 
     notes: { type: DataTypes.TEXT },
-
-    createdAt: { type: DataTypes.DATE },
-    updatedAt: { type: DataTypes.DATE },
   },
   {
     tableName: "orders",
+    timestamps: true,
   }
 );
+
+// 🔗 Associações
+Order.belongsTo(Employee, { foreignKey: "employeeId", as: "employee" });
+Order.belongsTo(Customer, { foreignKey: "customerId", as: "customer" });
+Order.hasMany(OrderItem, { foreignKey: "orderId", as: "items" });
 
 export default Order;

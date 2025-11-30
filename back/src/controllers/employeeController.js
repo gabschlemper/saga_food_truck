@@ -93,7 +93,7 @@ async function list(req, res) {
 async function getById(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const employee = await EmployeeService.findByPk(id);
+    const employee = await EmployeeService.getById(id);
 
     if (!employee) {
       return res.status(404).json({ error: "Funcionário não encontrado" });
@@ -151,7 +151,7 @@ async function create(req, res) {
 async function update(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const employee = await EmployeeService.findByPk(id);
+    const employee = await EmployeeService.getById(id);
 
     if (!employee) {
       return res.status(404).json({ error: "Funcionário não encontrado" });
@@ -160,7 +160,7 @@ async function update(req, res) {
     const { name, email, password, role, active } = req.body;
     await EmployeeService.update(id, { name, email, password, role, active });
 
-    const updatedEmployee = await EmployeeService.findByPk(id);
+    const updatedEmployee = await EmployeeService.getById(id);
 
     return res.json({
       id: updatedEmployee.id,
@@ -178,7 +178,7 @@ async function update(req, res) {
 async function remove(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const employee = await EmployeeService.findByPk(id);
+    const employee = await EmployeeService.getById(id);
 
     if (!employee) {
       return res.status(404).json({ error: "Funcionário não encontrado" });

@@ -1,41 +1,75 @@
+import { sequelize } from "../../database.js";
 import OrderRepository from "../repositories/orderRepositories.js";
-import OrderItemRepository from "../repositories/orderItemRepository.js";
-import EmployeeRepository from "../repositories/employeeRepository.js";
-import CustomerRepository from "../repositories/customerRepository.js";
-// Buscar todos os pedidos com relações
-async function getAll() {
-  return OrderRepository.findAll({
+import OrderItem from "../models/orderItem.js";
+import Employee from "../models/employee.js";
+import Customer from "../models/customer.js";
+// Paginação e listagem
+async function findAndCountAll(options) {
+  return OrderRepository.findAndCountAll({
+    ...options,
     include: [
-      { model: EmployeeRepository, attributes: ["id", "name"] },
-      { model: CustomerRepository, attributes: ["id", "name"] },
-      { model: OrderItemRepository },
+      { model: Employee, attributes: ["id", "name"] },
+      { model: Customer, attributes: ["id", "name", "email", "phone"] },
+      { model: OrderItem },
     ],
   });
 }
-// Buscar pedido por ID com itens
-async function getById(id) {
+// Buscar todos
+async function getAll() {
+  return OrderRepository.findAll({
+    include: [
+      { model: Employee, attributes: ["id", "name"] },
+      { model: Customer, attributes: ["id", "name", "email", "phone"] },
+      { model: OrderItem },
+    ],
+  });
+}
+// Buscar por ID
+async function getById(id, options = {}) {
   const order = await OrderRepository.findByPk(id, {
-    include: [OrderItemRepository],
+    ...options,
+    include: [
+      { model: Employee, as: "employee", attributes: ["id", "name"] },
+      {
+        model: Customer,
+        as: "customer",
+        attributes: ["id", "name", "email", "phone"],
+      },
+      { model: OrderItem, as: "items" },
+    ],
   });
 
   if (!order) throw new Error("Order not found");
-
   return order;
 }
-// Criar pedido com itens
-async function create(data, items = []) {
-  const order = await OrderRepository.create(data);
-
-  if (items.length > 0) {
-    for (const item of items) {
-      await OrderItemRepository.create({
-        ...item,
-        orderId: order.id,
-      });
+// Criar pedido com cliente e itens
+async function create(orderData, customerData, items = []) {
+  return sequelize.transaction(async (t) => {
+    // 1. Criar cliente
+    const createdCustomer = await Customer.create(customerData, {
+      transaction: t,
+    });
+    // 2. Criar pedido
+    const order = await OrderRepository.create(
+      {
+        ...orderData,
+        customerId: createdCustomer.id,
+        customer: createdCustomer.name, // ✅ evita null
+      },
+      { transaction: t }
+    );
+    // 3. Criar itens vinculados
+    if (items.length > 0) {
+      for (const item of items) {
+        await OrderItem.create(
+          { ...item, orderId: order.id },
+          { transaction: t }
+        );
+      }
     }
-  }
-
-  return getById(order.id);
+    // 4. Retornar pedido completo
+    return { order, createdCustomer };
+  });
 }
 // Atualizar pedido
 async function update(id, data) {
@@ -47,10 +81,11 @@ async function remove(id) {
   const order = await getById(id);
   return order.destroy();
 }
-// Exportações
-export { getAll, getById, create, update, remove };
+
+export { findAndCountAll, getAll, getById, create, update, remove };
 
 export default {
+  findAndCountAll,
   getAll,
   getById,
   create,

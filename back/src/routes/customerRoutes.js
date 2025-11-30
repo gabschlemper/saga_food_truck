@@ -1,8 +1,8 @@
 import express from "express";
 
-import { AuditController } from "../controllers/auditController.js";
-import { auth } from "../middlewares/authMiddleware.js";
-import { role } from "../middlewares/roleMiddleware.js";
+import AuditController from "../controllers/auditController.js";
+import auth from "../middlewares/authMiddleware.js";
+import role from "../middlewares/roleMiddleware.js";
 
 const router = express.Router();
 

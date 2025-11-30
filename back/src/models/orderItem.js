@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../../database.js"; // caminho correto
+import sequelize from "../../database.js";
 
 const OrderItem = sequelize.define(
   "OrderItem",

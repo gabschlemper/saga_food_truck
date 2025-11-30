@@ -1,5 +1,6 @@
 import ProductService from "../services/productService.js";
 import { Op } from "sequelize";
+
 // LISTAR PRODUTOS COM PAGINAÇÃO E FILTRO
 async function list(req, res) {
   try {
@@ -15,7 +16,8 @@ async function list(req, res) {
     if (category) where.category = category;
     if (status) where.status = status;
 
-    const { count, rows } = await ProductService.findAndCountAll({
+    // 👇 agora chamamos getAllPaged em vez de findAndCountAll
+    const { count, rows } = await ProductService.getAllPaged({
       where,
       order: [["name", "ASC"]],
       limit,
@@ -28,11 +30,12 @@ async function list(req, res) {
     return res.status(500).json({ error: "Erro ao listar produtos" });
   }
 }
+
 // BUSCAR POR ID
 async function getById(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const product = await ProductService.findByPk(id);
+    const product = await ProductService.getById(id);
 
     if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
@@ -44,6 +47,7 @@ async function getById(req, res) {
     return res.status(500).json({ error: "Erro ao buscar produto" });
   }
 }
+
 // CRIAR PRODUTO
 async function create(req, res) {
   try {
@@ -77,11 +81,12 @@ async function create(req, res) {
     return res.status(500).json({ error: "Erro ao criar produto" });
   }
 }
+
 // ATUALIZAR PRODUTO
 async function update(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const product = await ProductService.findByPk(id);
+    const product = await ProductService.getById(id);
 
     if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
@@ -100,18 +105,19 @@ async function update(req, res) {
       active,
     });
 
-    const updatedProduct = await ProductService.findByPk(id);
+    const updatedProduct = await ProductService.getById(id);
     return res.json(updatedProduct);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Erro ao atualizar produto" });
   }
 }
+
 // REMOVER PRODUTO
 async function remove(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const product = await ProductService.findByPk(id);
+    const product = await ProductService.getById(id);
 
     if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
@@ -124,6 +130,7 @@ async function remove(req, res) {
     return res.status(500).json({ error: "Erro ao excluir produto" });
   }
 }
+
 // AJUSTAR ESTOQUE (manualmente)
 async function adjustStock(req, res) {
   try {
@@ -134,7 +141,7 @@ async function adjustStock(req, res) {
       return res.status(400).json({ error: "delta (number) obrigatório" });
     }
 
-    const product = await ProductService.findByPk(id);
+    const product = await ProductService.getById(id);
     if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
     }
@@ -147,7 +154,7 @@ async function adjustStock(req, res) {
     }
 
     await ProductService.update(id, { stock: newStock });
-    const updatedProduct = await ProductService.findByPk(id);
+    const updatedProduct = await ProductService.getById(id);
 
     return res.json(updatedProduct);
   } catch (err) {
@@ -155,6 +162,7 @@ async function adjustStock(req, res) {
     return res.status(500).json({ error: "Erro ao ajustar estoque" });
   }
 }
+
 // EXPORT DEFAULT
 export default {
   list,

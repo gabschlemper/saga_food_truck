@@ -5,14 +5,19 @@ const Customer = sequelize.define(
   "Customer",
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: DataTypes.STRING, allowNull: false },
+    customerName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      field: "customer_name", // 👈 coluna real no banco
+    },
     phone: { type: DataTypes.STRING },
     email: { type: DataTypes.STRING },
-    createdAt: { type: DataTypes.DATE },
-    updatedAt: { type: DataTypes.DATE },
   },
+
   {
     tableName: "customer",
+    timestamps: true,
+    underscored: true, // gera created_at e updated_a
   }
 );
 

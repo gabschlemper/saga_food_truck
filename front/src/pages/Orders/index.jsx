@@ -10,6 +10,16 @@ function Orders() {
   const { orders = [], loading = false, error = null } = ordersState || {};
   const [filter, setFilter] = useState("all");
 
+  const [showOrderModal, setShowOrderModal] = useState(false);
+
+  const handleAddOrderClick = () => {
+    setShowOrderModal(true);
+  };
+
+  const handleOrderModalClose = () => {
+    setShowOrderModal(false);
+  };
+
   console.log("Orders State:", ordersState);
 
   useEffect(() => {
@@ -84,7 +94,12 @@ function Orders() {
             <h1 className="page-title">Pedidos</h1>
             <p className="page-subtitle">Gerencie os pedidos do food truck</p>
           </div>
-          <button className="new-order-button">+ Novo Pedido</button>
+          <button
+            className="new-order-button"
+            onClick={handleAddOrderClick} // 👉 adiciona o onClick aqui
+          >
+            + Novo Pedido
+          </button>
         </header>
 
         <div className="orders-filters">
@@ -208,6 +223,16 @@ function Orders() {
                 </div>
               ))}
             </div>
+          )}
+          {showOrderModal && (
+            <OrderModal
+              isOpen={showOrderModal}
+              onClose={handleOrderModalClose}
+              onSubmit={(orderData) => {
+                dispatch(createOrder(orderData)); // cria o pedido
+                handleOrderModalClose(); // fecha modal
+              }}
+            />
           )}
         </div>
       </div>

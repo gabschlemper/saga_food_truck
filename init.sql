@@ -1,228 +1,347 @@
--- ============================================
--- SAGA Food Truck - Database Schema
--- Database adaptado para compatibilidade com Frontend
--- Nomenclatura em inglês (camelCase) conforme usado no Front-End
--- ============================================
- 
--- Limpar schema existente (CUIDADO: Remove todos os dados!)
-DROP SCHEMA IF EXISTS public CASCADE;
+-- DROP SCHEMA public;
+
 CREATE SCHEMA public AUTHORIZATION pg_database_owner;
- 
--- ============================================
--- ENUMS (Tipos Customizados)
--- ============================================
- 
--- Status do Pedido (conforme usado no front-end)
-CREATE TYPE order_status_type AS ENUM (
-    'Aguardando Pagamento',
-    'Preparando',
-    'Pronto',
-    'Entregue',
-    'Cancelado'
-);
- 
--- Status de Pagamento (conforme usado no front-end)
-CREATE TYPE payment_status_type AS ENUM (
-    'Pendente',
-    'Pago',
-    'Cancelado'
-);
- 
--- Forma de Pagamento (conforme usado no front-end)
-CREATE TYPE payment_method_type AS ENUM (
-    'Pix',
-    'Cartão Crédito',
-    'Cartão Débito',
-    'Dinheiro'
-);
- 
--- Status do Produto (conforme usado no front-end)
-CREATE TYPE product_status_type AS ENUM (
-    'Disponível',
-    'Estoque Baixo',
-    'Sem Estoque',
-    'Em Estoque'
-);
- 
--- Categoria do Produto
-CREATE TYPE product_category_type AS ENUM (
-    'Lanches',
-    'Acompanhamentos',
-    'Bebidas',
-    'Outros'
-);
- 
--- Papel/Cargo do Funcionário
-CREATE TYPE user_role_type AS ENUM (
-    'admin',
-    'atendente'
-);
- 
--- ============================================
--- TABELA: employees (funcionarios)
--- Armazena funcionários (admin e atendentes)
--- ============================================
-CREATE TABLE employee (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL, -- Em produção, usar hash (bcrypt)
-    role user_role_type NOT NULL DEFAULT 'atendente',
-    active BOOLEAN DEFAULT TRUE,
-    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
- 
--- Índices para melhor performance
-CREATE INDEX idx_employees_email ON employees(email);
-CREATE INDEX idx_employees_role ON employees(role);
 
-CREATE TABLE admin (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL, -- Em produção, usar hash (bcrypt)
-    role user_role_type NOT NULL DEFAULT 'admin',
-    active BOOLEAN DEFAULT TRUE,
-    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
- 
--- Índices para melhor performance
-CREATE INDEX idx_employees_email ON employees(email);
-CREATE INDEX idx_employees_role ON employees(role);
- 
--- ============================================
--- TABELA: customers (clientes)
--- Armazena dados dos clientes
--- ============================================
-CREATE TABLE customer (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    phone VARCHAR(20),
-    email VARCHAR(255),
-    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
- 
--- Índice para busca por nome
-CREATE INDEX idx_customers_name ON customers(name);
- 
--- ============================================
--- TABELA: products (produtos)
--- Armazena itens do cardápio
--- ============================================
-CREATE TABLE products (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    price DECIMAL(10, 2) NOT NULL CHECK (price > 0),
-    stock INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
-    "minimumStock" INTEGER NOT NULL DEFAULT 0 CHECK ("minimumStock" >= 0),
-    status product_status_type NOT NULL DEFAULT 'Disponível',
-    category product_category_type DEFAULT 'Outros',
-    active BOOLEAN DEFAULT TRUE,
-    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
- 
--- Índices
-CREATE INDEX idx_products_name ON products(name);
-CREATE INDEX idx_products_category ON products(category);
-CREATE INDEX idx_products_status ON products(status);
- 
--- ============================================
--- TABELA: orders (pedidos)
--- Armazena os pedidos realizados
--- ============================================
-CREATE TABLE orders (
-    id SERIAL PRIMARY KEY,
-    "employeeId" INTEGER NOT NULL REFERENCES employee(id) ON DELETE RESTRICT,
-    "customerId" INTEGER REFERENCES customer(id) ON DELETE SET NULL,
-    customer VARCHAR(255) NOT NULL, -- Nome do cliente (pode não estar cadastrado)
-    total DECIMAL(10, 2) NOT NULL CHECK (total >= 0),
-    "paymentMethod" payment_method_type NOT NULL,
-    "paymentStatus" payment_status_type NOT NULL DEFAULT 'Pendente',
-    status order_status_type NOT NULL DEFAULT 'Aguardando Pagamento',
-    notes TEXT,
-    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
- 
--- Índices
-CREATE INDEX idx_orders_employee ON orders("employeeId");
-CREATE INDEX idx_orders_customer ON orders("customerId");
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_payment_status ON orders("paymentStatus");
-CREATE INDEX idx_orders_created ON orders("createdAt");
- 
--- ============================================
--- TABELA: order_items (itens_pedido)
--- Relacionamento N:N entre pedidos e produtos
--- ============================================
-CREATE TABLE order_items (
-    id SERIAL PRIMARY KEY,
-    "orderId" INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-    "productId" INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
-    name VARCHAR(255) NOT NULL, -- Guardar nome no momento da venda
-    quantity INTEGER NOT NULL CHECK (quantity > 0),
-    price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
-    subtotal DECIMAL(10, 2) NOT NULL CHECK (subtotal >= 0),
-    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
- 
--- Índices
-CREATE INDEX idx_order_items_order ON order_items("orderId");
-CREATE INDEX idx_order_items_product ON order_items("productId");
- 
--- ============================================
--- TABELA: order_audit (auditoria_pedidos)
--- Registro de alterações nos pedidos
--- ============================================
-CREATE TABLE order_audit (
-    id SERIAL PRIMARY KEY,
-    "orderId" INTEGER,
-    action VARCHAR(50) NOT NULL, -- 'INSERT', 'UPDATE', 'DELETE'
-    "employeeId" INTEGER,
-    "previousData" JSONB, -- Estado anterior do pedido (para UPDATE/DELETE)
-    "newData" JSONB, -- Novo estado do pedido (para INSERT/UPDATE)
-    "actionDate" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
- 
--- Índice
-CREATE INDEX idx_order_audit_order ON order_audit("orderId");
-CREATE INDEX idx_order_audit_date ON order_audit("actionDate");
- 
--- ============================================
--- TABELA: product_audit (auditoria_produtos)
--- Registro de alterações nos produtos
--- ============================================
-CREATE TABLE product_audit (
-    id SERIAL PRIMARY KEY,
-    "productId" INTEGER,
-    action VARCHAR(50) NOT NULL,
-    "employeeId" INTEGER,
-    "fieldChanged" VARCHAR(100),
-    "previousValue" TEXT,
-    "newValue" TEXT,
-    "actionDate" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
- 
--- Índice
-CREATE INDEX idx_product_audit_product ON product_audit("productId");
+-- DROP TYPE public."enum_employee_role";
+
+CREATE TYPE public."enum_employee_role" AS ENUM (
+	'admin',
+	'atendente');
+
+-- DROP TYPE public."enum_orders_paymentMethod";
+
+CREATE TYPE public."enum_orders_paymentMethod" AS ENUM (
+	'Pix',
+	'Cartão Crédito',
+	'Cartão Débito',
+	'Dinheiro');
+
+-- DROP TYPE public."enum_orders_paymentStatus";
+
+CREATE TYPE public."enum_orders_paymentStatus" AS ENUM (
+	'Pendente',
+	'Pago',
+	'Cancelado');
+
+-- DROP TYPE public."enum_orders_status";
+
+CREATE TYPE public."enum_orders_status" AS ENUM (
+	'Aguardando Pagamento',
+	'Preparando',
+	'Pronto',
+	'Entregue',
+	'Cancelado');
+
+-- DROP TYPE public."enum_products_category";
+
+CREATE TYPE public."enum_products_category" AS ENUM (
+	'Lanches',
+	'Acompanhamentos',
+	'Bebidas',
+	'Outros');
+
+-- DROP TYPE public."enum_products_status";
+
+CREATE TYPE public."enum_products_status" AS ENUM (
+	'Disponível',
+	'Estoque Baixo',
+	'Sem Estoque',
+	'Em Estoque');
+
+-- DROP TYPE public."order_status_type";
+
+CREATE TYPE public."order_status_type" AS ENUM (
+	'Aguardando Pagamento',
+	'Preparando',
+	'Pronto',
+	'Entregue',
+	'Cancelado');
+
+-- DROP TYPE public."payment_method_type";
+
+CREATE TYPE public."payment_method_type" AS ENUM (
+	'Pix',
+	'Cartão Crédito',
+	'Cartão Débito',
+	'Dinheiro');
+
+-- DROP TYPE public."payment_status_type";
+
+CREATE TYPE public."payment_status_type" AS ENUM (
+	'Pendente',
+	'Pago',
+	'Cancelado');
+
+-- DROP TYPE public."product_category_type";
+
+CREATE TYPE public."product_category_type" AS ENUM (
+	'Lanches',
+	'Acompanhamentos',
+	'Bebidas',
+	'Outros');
+
+-- DROP TYPE public."product_status_type";
+
+CREATE TYPE public."product_status_type" AS ENUM (
+	'Disponível',
+	'Estoque Baixo',
+	'Sem Estoque',
+	'Em Estoque');
+
+-- DROP TYPE public."user_role_type";
+
+CREATE TYPE public."user_role_type" AS ENUM (
+	'admin',
+	'atendente');
+
+-- DROP SEQUENCE public.admin_id_seq;
+
+CREATE SEQUENCE public.admin_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE public.admin_id_seq OWNER TO usuario;
+GRANT ALL ON SEQUENCE public.admin_id_seq TO usuario;
+
+-- DROP SEQUENCE public.customer_id_seq;
+
+CREATE SEQUENCE public.customer_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE public.customer_id_seq OWNER TO usuario;
+GRANT ALL ON SEQUENCE public.customer_id_seq TO usuario;
+
+-- DROP SEQUENCE public.employee_id_seq;
+
+CREATE SEQUENCE public.employee_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE public.employee_id_seq OWNER TO usuario;
+GRANT ALL ON SEQUENCE public.employee_id_seq TO usuario;
+
+-- DROP SEQUENCE public.order_audit_id_seq;
+
+CREATE SEQUENCE public.order_audit_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE public.order_audit_id_seq OWNER TO usuario;
+GRANT ALL ON SEQUENCE public.order_audit_id_seq TO usuario;
+
+-- DROP SEQUENCE public.order_items_id_seq;
+
+CREATE SEQUENCE public.order_items_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE public.order_items_id_seq OWNER TO usuario;
+GRANT ALL ON SEQUENCE public.order_items_id_seq TO usuario;
+
+-- DROP SEQUENCE public.orders_id_seq;
+
+CREATE SEQUENCE public.orders_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE public.orders_id_seq OWNER TO usuario;
+GRANT ALL ON SEQUENCE public.orders_id_seq TO usuario;
+
+-- DROP SEQUENCE public.product_audit_id_seq;
+
+CREATE SEQUENCE public.product_audit_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE public.product_audit_id_seq OWNER TO usuario;
+GRANT ALL ON SEQUENCE public.product_audit_id_seq TO usuario;
+
+-- DROP SEQUENCE public.products_id_seq;
+
+CREATE SEQUENCE public.products_id_seq
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 2147483647
+	START 1
+	CACHE 1
+	NO CYCLE;
+
+-- Permissions
+
+ALTER SEQUENCE public.products_id_seq OWNER TO usuario;
+GRANT ALL ON SEQUENCE public.products_id_seq TO usuario;
+-- public.customer definição
+
+-- Drop table
+
+-- DROP TABLE public.customer;
+
+CREATE TABLE public.customer ( CONSTRAINT customer_pkey PRIMARY KEY (id));
+
+-- Permissions
+
+ALTER TABLE public.customer OWNER TO usuario;
+GRANT ALL ON TABLE public.customer TO usuario;
 
 
-CREATE TABLE order_items (
-    id SERIAL PRIMARY KEY,
-    "orderId" INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-    "productId" INTEGER NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    quantity INTEGER NOT NULL,
-    price NUMERIC(10,2) NOT NULL,
-    subtotal NUMERIC(10,2) NOT NULL,
-    "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
-    "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
-);
+-- public.employee definição
+
+-- Drop table
+
+-- DROP TABLE public.employee;
+
+CREATE TABLE public.employee ( id serial4 NOT NULL, "name" varchar(255) NOT NULL, email varchar(255) NOT NULL, "password" varchar(255) NOT NULL, "role" public."enum_employee_role" DEFAULT 'atendente'::enum_employee_role NULL, active bool DEFAULT true NULL, "createdAt" timestamptz NOT NULL, "updatedAt" timestamptz NOT NULL, CONSTRAINT employee_email_key UNIQUE (email), CONSTRAINT employee_pkey PRIMARY KEY (id));
+
+-- Permissions
+
+ALTER TABLE public.employee OWNER TO usuario;
+GRANT ALL ON TABLE public.employee TO usuario;
+
+
+-- public.order_audit definição
+
+-- Drop table
+
+-- DROP TABLE public.order_audit;
+
+CREATE TABLE public.order_audit ( id serial4 NOT NULL, "orderId" int4 NULL, "action" varchar(50) NOT NULL, "employeeId" int4 NULL, "previousData" jsonb NULL, "newData" jsonb NULL, "actionDate" timestamp DEFAULT CURRENT_TIMESTAMP NULL, CONSTRAINT order_audit_pkey PRIMARY KEY (id));
+
+-- Permissions
+
+ALTER TABLE public.order_audit OWNER TO usuario;
+GRANT ALL ON TABLE public.order_audit TO usuario;
+
+
+-- public.order_items definição
+
+-- Drop table
+
+-- DROP TABLE public.order_items;
+
+CREATE TABLE public.order_items ( id serial4 NOT NULL, "orderId" int4 NOT NULL, "productId" int4 NOT NULL, "name" varchar(255) NOT NULL, quantity int4 NOT NULL, price numeric(10, 2) NOT NULL, subtotal numeric(10, 2) NOT NULL, "createdAt" timestamptz NULL, CONSTRAINT order_items_pkey PRIMARY KEY (id));
+
+-- Permissions
+
+ALTER TABLE public.order_items OWNER TO usuario;
+GRANT ALL ON TABLE public.order_items TO usuario;
+
+
+-- public.orders definição
+
+-- Drop table
+
+-- DROP TABLE public.orders;
+
+CREATE TABLE public.orders ( id serial4 NOT NULL, "employeeId" int4 NOT NULL, "customerId" int4 NULL, "customerName" varchar(255) NULL, total numeric(10, 2) NOT NULL, "paymentMethod" public."enum_orders_paymentMethod" NOT NULL, "paymentStatus" public."enum_orders_paymentStatus" DEFAULT 'Pendente'::"enum_orders_paymentStatus" NULL, status public."enum_orders_status" DEFAULT 'Aguardando Pagamento'::enum_orders_status NULL, notes text NULL, "createdAt" timestamptz NOT NULL, "updatedAt" timestamptz NOT NULL, CONSTRAINT orders_pkey PRIMARY KEY (id));
+
+-- Permissions
+
+ALTER TABLE public.orders OWNER TO usuario;
+GRANT ALL ON TABLE public.orders TO usuario;
+
+
+-- public.product_audit definição
+
+-- Drop table
+
+-- DROP TABLE public.product_audit;
+
+CREATE TABLE public.product_audit ( id serial4 NOT NULL, "productId" int4 NULL, "action" varchar(50) NOT NULL, "employeeId" int4 NULL, "fieldChanged" varchar(100) NULL, "previousValue" text NULL, "newValue" text NULL, "actionDate" timestamp DEFAULT CURRENT_TIMESTAMP NULL, CONSTRAINT product_audit_pkey PRIMARY KEY (id));
+
+-- Permissions
+
+ALTER TABLE public.product_audit OWNER TO usuario;
+GRANT ALL ON TABLE public.product_audit TO usuario;
+
+
+-- public.products definição
+
+-- Drop table
+
+-- DROP TABLE public.products;
+
+CREATE TABLE public.products ( id serial4 NOT NULL, "name" varchar(255) NOT NULL, description text NULL, price numeric(10, 2) NOT NULL, stock int4 DEFAULT 0 NULL, "minimumStock" int4 DEFAULT 0 NULL, status public."enum_products_status" DEFAULT 'Disponível'::enum_products_status NULL, category public."enum_products_category" DEFAULT 'Outros'::enum_products_category NULL, active bool DEFAULT true NULL, "createdAt" timestamptz NOT NULL, "updatedAt" timestamptz NOT NULL, CONSTRAINT products_pkey PRIMARY KEY (id));
+
+-- Permissions
+
+ALTER TABLE public.products OWNER TO usuario;
+GRANT ALL ON TABLE public.products TO usuario;
+
+
+
+-- DROP FUNCTION public.update_product_stock();
+
+CREATE OR REPLACE FUNCTION public.update_product_stock()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    IF (TG_OP = 'INSERT') THEN
+        UPDATE products
+        SET stock = stock - NEW.quantity
+        WHERE id = NEW."productId";
+    ELSIF (TG_OP = 'DELETE') THEN
+        UPDATE products
+        SET stock = stock + OLD.quantity
+        WHERE id = OLD."productId";
+    END IF;
+    RETURN NULL;
+END;
+$function$
+;
+
+-- Permissions
+
+ALTER FUNCTION public.update_product_stock() OWNER TO usuario;
+GRANT ALL ON FUNCTION public.update_product_stock() TO usuario;
+
+
+-- Permissions
+
+GRANT ALL ON SCHEMA public TO pg_database_owner;
  
 -- ============================================
 -- FUNCTIONS E TRIGGERS

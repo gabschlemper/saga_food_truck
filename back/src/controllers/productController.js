@@ -1,9 +1,7 @@
-const { Product } = require("../models");
-const { Op } = require("sequelize");
+import ProductService from "../services/productService.js";
+import { Op } from "sequelize";
 
-// =========================================================
-// LISTAR PRODUTOS
-// =========================================================
+// LISTAR PRODUTOS COM PAGINAÇÃO E FILTRO
 async function list(req, res) {
   try {
     const q = req.query.q || "";
@@ -18,7 +16,8 @@ async function list(req, res) {
     if (category) where.category = category;
     if (status) where.status = status;
 
-    const { count, rows } = await Product.findAndCountAll({
+    // 👇 agora chamamos getAllPaged em vez de findAndCountAll
+    const { count, rows } = await ProductService.getAllPaged({
       where,
       order: [["name", "ASC"]],
       limit,
@@ -32,15 +31,16 @@ async function list(req, res) {
   }
 }
 
-// =========================================================
 // BUSCAR POR ID
-// =========================================================
 async function getById(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const product = await Product.findByPk(id);
-    if (!product)
+    const product = await ProductService.getById(id);
+
+    if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
     return res.json(product);
   } catch (err) {
     console.error(err);
@@ -48,9 +48,7 @@ async function getById(req, res) {
   }
 }
 
-// =========================================================
 // CRIAR PRODUTO
-// =========================================================
 async function create(req, res) {
   try {
     const {
@@ -63,10 +61,11 @@ async function create(req, res) {
       active = true,
     } = req.body;
 
-    if (!name || price == null)
+    if (!name || price == null) {
       return res.status(400).json({ error: "name e price são obrigatórios" });
+    }
 
-    const product = await Product.create({
+    const product = await ProductService.create({
       name,
       description,
       price,
@@ -83,20 +82,20 @@ async function create(req, res) {
   }
 }
 
-// =========================================================
 // ATUALIZAR PRODUTO
-// =========================================================
 async function update(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const product = await Product.findByPk(id);
-    if (!product)
+    const product = await ProductService.getById(id);
+
+    if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
+    }
 
     const { name, description, price, stock, minimumStock, category, active } =
       req.body;
 
-    await product.update({
+    await ProductService.update(id, {
       name,
       description,
       price,
@@ -106,24 +105,25 @@ async function update(req, res) {
       active,
     });
 
-    return res.json(product);
+    const updatedProduct = await ProductService.getById(id);
+    return res.json(updatedProduct);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Erro ao atualizar produto" });
   }
 }
 
-// =========================================================
 // REMOVER PRODUTO
-// =========================================================
 async function remove(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const product = await Product.findByPk(id);
-    if (!product)
-      return res.status(404).json({ error: "Produto não encontrado" });
+    const product = await ProductService.getById(id);
 
-    await product.destroy();
+    if (!product) {
+      return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
+    await ProductService.remove(id);
     return res.status(204).send();
   } catch (err) {
     console.error(err);
@@ -131,41 +131,40 @@ async function remove(req, res) {
   }
 }
 
-// =========================================================
 // AJUSTAR ESTOQUE (manualmente)
-// =========================================================
 async function adjustStock(req, res) {
   try {
     const id = parseInt(req.params.id);
     const { delta } = req.body;
 
-    if (typeof delta !== "number")
+    if (typeof delta !== "number") {
       return res.status(400).json({ error: "delta (number) obrigatório" });
+    }
 
-    const product = await Product.findByPk(id);
-    if (!product)
+    const product = await ProductService.getById(id);
+    if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
+    }
 
     const newStock = product.stock + delta;
-    if (newStock < 0)
+    if (newStock < 0) {
       return res
         .status(400)
         .json({ error: "Resultado do estoque não pode ser negativo" });
+    }
 
-    product.stock = newStock;
-    await product.save();
+    await ProductService.update(id, { stock: newStock });
+    const updatedProduct = await ProductService.getById(id);
 
-    return res.json(product);
+    return res.json(updatedProduct);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Erro ao ajustar estoque" });
   }
 }
 
-// =========================================================
-// EXPORTAÇÃO COMO OBJETO DE FUNÇÕES
-// =========================================================
-module.exports = {
+// EXPORT DEFAULT
+export default {
   list,
   getById,
   create,

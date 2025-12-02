@@ -1,21 +1,38 @@
-const BaseRepository = require("./baseRepository");
-const Product = require("../models/product");
-const { Op, Sequelize } = require("sequelize");
+import BaseRepository from "./baseRepository.js";
+import Product from "../models/product.js";
+import { Op, Sequelize } from "sequelize";
 
-// Reaproveita os métodos base: findAll, findById, create, update, delete
-const base = BaseRepository(Product);
+// Repositório base com CRUD (create, update, delete, findByPk, findAll, etc.)
+const baseRepository = BaseRepository(Product);
 
-async function findLowStock() {
-  return Product.findAll({
-    where: {
-      stock: {
-        [Op.lte]: Sequelize.col("minimumStock"),
+const ProductRepository = {
+  ...baseRepository,
+
+  // Buscar produto por ID
+  async findByPk(id, options = {}) {
+    return Product.findByPk(id, { ...options });
+  },
+
+  // Buscar todos os produtos
+  async findAll(options = {}) {
+    return Product.findAll({ ...options });
+  },
+
+  // Buscar paginado (com count)
+  async findAndCountAll(options = {}) {
+    return Product.findAndCountAll({ ...options });
+  },
+
+  // Exemplo de busca com filtro (usando Op do Sequelize)
+  async findByName(name) {
+    return Product.findAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${name}%`, // busca case-insensitive
+        },
       },
-    },
-  });
-}
-
-module.exports = {
-  ...base,
-  findLowStock,
+    });
+  },
 };
+
+export default ProductRepository;

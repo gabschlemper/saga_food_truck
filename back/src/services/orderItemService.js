@@ -1,17 +1,18 @@
-const OrderItem = require("../models/orderItem");
-
+import OrderItemRepository from "../repositories/orderItemRepository.js";
+// Criar novo item de pedido
 async function create(data) {
-  return OrderItem.create(data);
+  return OrderItemRepository.create(data);
 }
-
+// Remover item de pedido
 async function remove(id) {
-  const item = await OrderItem.findByPk(id);
+  const item = await OrderItemRepository.findByPk(id);
   if (!item) throw new Error("Item not found");
   return item.destroy();
 }
+// Exportações
+export { create, remove };
 
-module.exports = {
+export default {
   create,
-  delete: remove,
+  remove,
 };
-// rever falta update e listagem

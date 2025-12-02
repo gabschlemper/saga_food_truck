@@ -1,12 +1,15 @@
-const BaseRepository = require("./baseRepository");
-const Employee = require("../models/employee");
+import BaseRepository from "./baseRepository.js";
+import Employee from "../models/employee.js";
 
-const base = BaseRepository(Employee);
+const baseRepository = BaseRepository(Employee);
 
-module.exports = {
-  ...base,
-
+const EmployeeRepository = {
+  ...baseRepository,
+  // Busca um funcionário pelo e-mail
   async findByEmail(email) {
-    return Employee.findOne({ where: { email } });
+    const employee = await Employee.findOne({ where: { email } });
+    return employee || null; // garante que retorne null se não encontrar
   },
 };
+
+export default EmployeeRepository;

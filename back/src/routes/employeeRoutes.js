@@ -1,14 +1,20 @@
-const express = require("express");
+import express from "express";
+import EmployeeController from "../controllers/employeeController.js";
+import auth from "../middlewares/authMiddleware.js";
+import role from "../middlewares/roleMiddleware.js";
+
 const router = express.Router();
 
-const EmployeeController = require("../controllers/employeeController");
-const auth = require("../middleware/authMiddleware");
-const role = require("../middleware/roleMiddleware");
-
-router.get("/", auth, role("admin"), EmployeeController.getAll);
-router.get("/:id", auth, role("admin"), EmployeeController.getById);
+router.post("/login", EmployeeController.loginController);
+router.get("/", auth, role("admin"), EmployeeController.list);
+router.get(
+  "/:id",
+  auth,
+  role("admin", "atendente"),
+  EmployeeController.getById
+);
 router.post("/", auth, role("admin"), EmployeeController.create);
-router.put("/:id", auth, role("admin"), EmployeeController.update);
-router.delete("/:id", auth, role("admin"), EmployeeController.delete);
+router.put("/:id", auth, role("admin", "atendente"), EmployeeController.update);
+router.delete("/:id", auth, role("admin"), EmployeeController.remove);
 
-module.exports = router;
+export default router;

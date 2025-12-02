@@ -7,8 +7,7 @@ function ProductModal({ isOpen, onClose, onSubmit, product, isEditing = false })
     description: '',
     price: '',
     stock: '',
-    minimumStock: '',
-    category: 'Outros'
+    minimumStock: ''
   })
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -21,8 +20,7 @@ function ProductModal({ isOpen, onClose, onSubmit, product, isEditing = false })
           description: product.description || '',
           price: product.price?.toString() || '',
           stock: product.stock?.toString() || '',
-          minimumStock: product.minimumStock?.toString() || '',
-          category: product.category || 'Outros'
+          minimumStock: product.minimumStock?.toString() || ''
         })
       } else {
         setFormData({
@@ -30,8 +28,7 @@ function ProductModal({ isOpen, onClose, onSubmit, product, isEditing = false })
           description: '',
           price: '',
           stock: '',
-          minimumStock: '',
-          category: 'Outros'
+          minimumStock: ''
         })
       }
       setErrors({})
@@ -74,8 +71,7 @@ function ProductModal({ isOpen, onClose, onSubmit, product, isEditing = false })
         description: formData.description.trim(),
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
-        minimumStock: parseInt(formData.minimumStock),
-        category: formData.category
+        minimumStock: parseInt(formData.minimumStock)
       }
 
       await onSubmit(productData)
@@ -145,23 +141,6 @@ function ProductModal({ isOpen, onClose, onSubmit, product, isEditing = false })
                 onChange={(e) => handleChange('description', e.target.value)}
                 rows={3}
               />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="category" className="form-label">
-                Categoria *
-              </label>
-              <select
-                id="category"
-                className="form-input"
-                value={formData.category}
-                onChange={(e) => handleChange('category', e.target.value)}
-              >
-                <option value="Lanches">Lanches</option>
-                <option value="Acompanhamentos">Acompanhamentos</option>
-                <option value="Bebidas">Bebidas</option>
-                <option value="Outros">Outros</option>
-              </select>
             </div>
 
             <div className="form-row">

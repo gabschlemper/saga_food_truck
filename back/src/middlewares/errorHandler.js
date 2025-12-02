@@ -1,5 +1,5 @@
-function errorHandler(err, req, res, next) {
-  console.error("🔥 Error:", err);
+export default function errorHandler(err, req, res, next) {
+  console.error("Error:", err);
 
   const status = err.status || 500;
 
@@ -9,5 +9,3 @@ function errorHandler(err, req, res, next) {
     error: process.env.NODE_ENV !== "production" ? err : undefined,
   });
 }
-
-module.exports = errorHandler;

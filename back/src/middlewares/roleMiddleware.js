@@ -1,4 +1,4 @@
-function requireRole(requiredRole) {
+export default function requireRole(requiredRole) {
   return function (req, res, next) {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -13,5 +13,3 @@ function requireRole(requiredRole) {
     next();
   };
 }
-
-module.exports = requireRole;

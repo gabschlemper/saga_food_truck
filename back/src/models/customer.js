@@ -1,20 +1,24 @@
 import { DataTypes } from "sequelize";
+import sequelize from "../../database.js"; // caminho correto
 
-export default (sequelize) => {
-  const Customer = sequelize.define(
-    "Customer",
-    {
-      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      name: { type: DataTypes.STRING, allowNull: false },
-      phone: { type: DataTypes.STRING },
-      email: { type: DataTypes.STRING },
-      createdAt: { type: DataTypes.DATE },
-      updatedAt: { type: DataTypes.DATE },
+const Customer = sequelize.define(
+  "Customer",
+  {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    customerName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      field: "customer_name", // 👈 coluna real no banco
     },
-    {
-      tableName: "customers",
-    }
-  );
+    phone: { type: DataTypes.STRING },
+    email: { type: DataTypes.STRING },
+  },
 
-  return Customer;
-};
+  {
+    tableName: "customer",
+    timestamps: true,
+    underscored: true, // gera created_at e updated_a
+  }
+);
+
+export default Customer;

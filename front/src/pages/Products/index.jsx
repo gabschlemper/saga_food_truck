@@ -1,100 +1,106 @@
-import { useState, useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '../../store/hooks'
-import { fetchProducts, deleteProduct, createProduct, updateProduct } from '../../store/slices/productsSlice'
-import Sidebar from '../../components/Sidebar'
-import ConfirmDialog from '../../components/ConfirmDialog'
-import ProductModal from '../../components/ProductModal'
-import './styles.css'
+import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  fetchProducts,
+  deleteProduct,
+  createProduct,
+  updateProduct,
+} from "../../store/slices/productsSlice";
+import Sidebar from "../../components/Sidebar";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import ProductModal from "../../components/ProductModal";
+import "./styles.css";
 
 function Products() {
-  const dispatch = useAppDispatch()
-  const productsState = useAppSelector((state) => state.products)
-  const { products = [], loading = false, error = null } = productsState || {}
-  const [showModal, setShowModal] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [productToDelete, setProductToDelete] = useState(null)
-  const [editingProduct, setEditingProduct] = useState(null)
-  const [isEditing, setIsEditing] = useState(false)
+  const dispatch = useAppDispatch();
+  const productsState = useAppSelector((state) => state.products);
+  const { products = [], loading = false, error = null } = productsState || {};
+  const [showModal, setShowModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchProducts())
-  }, [dispatch])
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Disponível':
-        return 'status-available'
-      case 'Estoque Baixo':
-        return 'status-low'
-      case 'Sem Estoque':
-        return 'status-out'
+      case "Disponível":
+        return "status-available";
+      case "Estoque Baixo":
+        return "status-low";
+      case "Sem Estoque":
+        return "status-out";
       default:
-        return 'status-available'
+        return "status-available";
     }
-  }
+  };
 
   const handleDeleteClick = (product) => {
-    setProductToDelete(product)
-    setShowDeleteDialog(true)
-  }
+    setProductToDelete(product);
+    setShowDeleteDialog(true);
+  };
 
   const handleConfirmDelete = () => {
     if (productToDelete) {
-      dispatch(deleteProduct(productToDelete.id))
-      setShowDeleteDialog(false)
-      setProductToDelete(null)
+      dispatch(deleteProduct(productToDelete.id));
+      setShowDeleteDialog(false);
+      setProductToDelete(null);
     }
-  }
+  };
 
   const handleCancelDelete = () => {
-    setShowDeleteDialog(false)
-    setProductToDelete(null)
-  }
+    setShowDeleteDialog(false);
+    setProductToDelete(null);
+  };
 
   const handleEditClick = (product) => {
-    setEditingProduct(product)
-    setIsEditing(true)
-    setShowModal(true)
-  }
+    setEditingProduct(product);
+    setIsEditing(true);
+    setShowModal(true);
+  };
 
   const handleAddClick = () => {
-    setEditingProduct(null)
-    setIsEditing(false)
-    setShowModal(true)
-  }
+    setEditingProduct(null);
+    setIsEditing(false);
+    setShowModal(true);
+  };
 
   const handleModalClose = () => {
-    setShowModal(false)
-    setEditingProduct(null)
-    setIsEditing(false)
-  }
+    setShowModal(false);
+    setEditingProduct(null);
+    setIsEditing(false);
+  };
 
   const handleModalSubmit = async (productData) => {
     if (isEditing) {
-      await dispatch(updateProduct({ id: editingProduct.id, productData }))
+      await dispatch(updateProduct({ id: editingProduct.id, productData }));
     } else {
-      await dispatch(createProduct(productData))
+      await dispatch(createProduct(productData));
     }
-  }
+    handleModalClose();
+  };
 
-  const lowStockCount = products.filter(product => 
-    product.status === 'Estoque Baixo' || product.status === 'Sem Estoque'
-  ).length
+  const lowStockCount = products.filter(
+    (product) =>
+      product.status === "Estoque Baixo" || product.status === "Sem Estoque"
+  ).length;
 
   return (
     <div className="dashboard-layout">
       <Sidebar />
-      
+
       <div className="dashboard-content">
         <header className="page-header">
           <div>
             <h1 className="page-title">Produtos</h1>
-            <p className="page-subtitle">Gerencie seu cardápio e controle o estoque</p>
+            <p className="page-subtitle">
+              Gerencie seu cardápio e controle o estoque
+            </p>
           </div>
-          <button 
-            className="new-product-button"
-            onClick={handleAddClick}
-          >
+          <button className="new-product-button" onClick={handleAddClick}>
             + Novo Produto
           </button>
         </header>
@@ -103,7 +109,9 @@ function Products() {
           <div className="alert-banner">
             <div className="alert-icon">⚠️</div>
             <div className="alert-content">
-              <strong>Atenção: {lowStockCount} produto(s) com estoque baixo</strong>
+              <strong>
+                Atenção: {lowStockCount} produto(s) com estoque baixo
+              </strong>
               <p>Alguns produtos precisam de reposição urgente</p>
             </div>
           </div>
@@ -112,13 +120,13 @@ function Products() {
         <div className="products-section">
           <div className="section-header">
             <h2 className="section-title">Lista de Produtos</h2>
-            <p className="section-subtitle">{products.length} produtos cadastrados</p>
+            <p className="section-subtitle">
+              {products.length} produtos cadastrados
+            </p>
           </div>
 
           {loading ? (
-            <div className="loading-state">
-              🔄 Carregando produtos...
-            </div>
+            <div className="loading-state">🔄 Carregando produtos...</div>
           ) : error ? (
             <div className="error-state">
               ❌ Erro ao carregar produtos: {error}
@@ -141,32 +149,43 @@ function Products() {
                       <td className="product-cell">
                         <div className="product-info">
                           <h4 className="product-name">{product.name}</h4>
-                          <p className="product-description">{product.description}</p>
+                          <p className="product-description">
+                            {product.description}
+                          </p>
                         </div>
                       </td>
                       <td className="price-cell">
-                        R$ {parseFloat(product.price).toFixed(2)}
+                        R$ {Number(product.price || 0).toFixed(2)}
                       </td>
+
                       <td className="stock-cell">
                         <div className="stock-info">
-                          <span className="stock-quantity">{product.stock} unidades</span>
-                          <span className="stock-minimum">Mínimo: {product.minimumStock}</span>
+                          <span className="stock-quantity">
+                            {product.stock} unidades
+                          </span>
+                          <span className="stock-minimum">
+                            Mínimo: {product.minimumStock}
+                          </span>
                         </div>
                       </td>
                       <td className="status-cell">
-                        <span className={`status-badge ${getStatusColor(product.status)}`}>
+                        <span
+                          className={`status-badge ${getStatusColor(
+                            product.status
+                          )}`}
+                        >
                           {product.status}
                         </span>
                       </td>
                       <td className="actions-cell">
                         <div className="action-buttons">
-                          <button 
+                          <button
                             className="action-button edit-button"
                             onClick={() => handleEditClick(product)}
                           >
                             📝 Editar
                           </button>
-                          <button 
+                          <button
                             className="action-button delete-button"
                             onClick={() => handleDeleteClick(product)}
                           >
@@ -202,7 +221,7 @@ function Products() {
         />
       </div>
     </div>
-  )
+  );
 }
 
-export default Products
+export default Products;
